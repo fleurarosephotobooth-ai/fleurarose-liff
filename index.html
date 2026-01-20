@@ -82,9 +82,9 @@
 <script>
   // === แก้ 2 จุดนี้ ===
   const LIFF_ID = "2008882886-ubJheqfN";
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbwjVCQmn8dQ9AjJ9iSgaNnX0Uin0EazfFeY4kDqMEmgnEJvYvOdFnpPPkDIpIXRrbKH/exec";
+  const GAS_URL  = "https://script.google.com/macros/s/AKfycbxPTpBKaN22K8JJfj-nDfgOIXP3nh2d70Y_V_-MFaPhhQZadwEIma0oiDnTG9CHdqs_/exec";
 
-  // OA basic id (ให้กดแล้วเปิดแชทแน่นอน)
+  // OA (ปุ่มติดต่อแอดมิน)
   const OA_BASIC_ID = "@262clszf";
 
   const $ = (id) => document.getElementById(id);
@@ -98,7 +98,7 @@
       await liff.init({ liffId: LIFF_ID });
       $("msg").textContent = liff.isInClient()
         ? "พร้อมใช้งาน"
-        : "หมายเหตุ: แนะนำให้เปิดผ่าน LINE เพื่อให้ฟังก์ชันครบถ้วน";
+        : "แนะนำให้เปิดผ่าน LINE เพื่อให้ทำงานสมบูรณ์";
     } catch (e) {
       setStatus("LIFF init error: " + e.message);
     }
@@ -113,15 +113,12 @@
   }
 
   async function submitBooking() {
-    const res = await fetch(GAS_URL, {
-  method: "POST",
-  // ห้ามใส่ headers: { "Content-Type": "application/json" }  ❌
-  // ส่งเป็น text/plain เพื่อเลี่ยง preflight
-  headers: { "Content-Type": "text/plain;charset=utf-8" },
-  body: JSON.stringify(payload),
-});
-const json = await res.json();
+    setStatus("");
+    const err = validate();
+    if (err) { setStatus(err); return; }
 
+    const lineUserId = liff.getContext()?.userId || "";
+    if (!lineUserId) { setStatus("ไม่พบ LINE userId (กรุณาเปิดผ่าน LINE)"); return; }
 
     const payload = {
       line_user_id: lineUserId,
@@ -136,20 +133,21 @@ const json = await res.json();
 
     $("btnSubmit").disabled = true;
     $("btnSubmit").textContent = "กำลังส่ง...";
+
     try {
+      // ✅ สำคัญ: ส่งแบบ text/plain เพื่อเลี่ยง CORS preflight (แก้ Failed to fetch)
       const res = await fetch(GAS_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
       });
+
       const json = await res.json();
 
       if (!json.ok) {
         setStatus("ส่งไม่สำเร็จ: " + (json.message || "unknown"));
       } else {
         setStatus("ส่งคำขอจองเรียบร้อย ✅ (รอแอดมินยืนยัน)", true);
-        // ปิด LIFF ได้ถ้าต้องการ
-        // if (liff.isInClient()) liff.closeWindow();
       }
     } catch (e) {
       setStatus("ส่งไม่สำเร็จ: Failed to fetch");
@@ -160,7 +158,7 @@ const json = await res.json();
   }
 
   function contactAdmin() {
-    // เปิดแชท OA แน่นอน ไม่พัง
+    // เปิดแชท OA แน่นอน
     const url = `https://line.me/R/ti/p/${encodeURIComponent(OA_BASIC_ID)}`;
     window.location.href = url;
   }
