@@ -6,21 +6,21 @@
   <title>Fleurarose Booking</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    body{font-family:system-ui,-apple-system,sans-serif;margin:16px;background:#fff}
-    .card{max-width:560px;margin:auto;border:1px solid #e5e5e5;border-radius:16px;padding:16px}
+    body{font-family:system-ui,-apple-system,sans-serif;margin:16px}
+    .card{max-width:560px;margin:auto;border:1px solid #ddd;border-radius:14px;padding:14px}
     h2{margin:0 0 6px 0}
     .muted{color:#666;font-size:13px;margin:0 0 10px 0}
     label{display:block;margin-top:10px;font-weight:700}
     input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #ccc;margin-top:6px;font-size:16px}
     textarea{resize:vertical}
     button{width:100%;padding:14px;border-radius:12px;border:0;margin-top:12px;font-weight:800;font-size:16px}
-    .btn1{background:#111;color:#fff}
     .btn2{background:#f3f3f3}
+    .btn1{background:#111;color:#fff}
     button:disabled{opacity:.45}
     .row{display:flex;gap:10px}
     .row>div{flex:1}
-    .err{color:#b00020;margin-top:10px}
-    .ok{color:#0a7a2f;margin-top:10px}
+    .err{color:#b00020;margin-top:8px}
+    .ok{color:#0a7a2f;margin-top:8px}
     .small{font-size:12px;color:#666;margin-top:6px}
   </style>
 </head>
@@ -52,7 +52,7 @@
     <label>ประเภทงาน</label>
     <select id="job_type">
       <option value="Photobooth">Photobooth</option>
-      <option value="Telephone Booth">ตู้โทรศัพท์</option>
+      <option value="Telephone Booth">Telephone Booth (ตู้โทรศัพท์)</option>
     </select>
 
     <label>สถานที่</label>
@@ -74,18 +74,13 @@
   </div>
 
 <script>
-  // ✅ ใส่ของหมิว
+  // ✅ LIFF ID ของหมิว
   const LIFF_ID = "2008882886-ubJheqfN";
 
-  // ✅ ใส่ Apps Script Web App /exec ของหมิว (ห้าม /dev)
-  const GAS_EXEC_URL = "PASTE_YOUR_GAS_EXEC_URL_HERE";
+  // ✅ ใส่ Web App /exec ของ Apps Script ของหมิว (สำคัญมาก)
+  const GAS_URL = "PUT_YOUR_SCRIPT_EXEC_URL_HERE";
 
   const $ = (id) => document.getElementById(id);
-
-  function setStatus(type, msg){
-    $("status").className = type;
-    $("status").textContent = msg;
-  }
 
   function validate(){
     const ok =
@@ -105,7 +100,6 @@
 
   async function init(){
     await liff.init({ liffId: LIFF_ID });
-
     if(!liff.isLoggedIn()){
       liff.login();
       return;
@@ -116,40 +110,53 @@
   $("contact").addEventListener("click", async ()=>{
     try{
       await liff.sendMessages([{ type:"text", text:"ติดต่อแอดมิน" }]);
-      setStatus("ok","ส่งข้อความถึงแอดมินแล้ว ✅");
+      $("status").className = "ok";
+      $("status").textContent = "ส่งข้อความถึงแอดมินแล้ว ✅";
     }catch(e){
-      setStatus("err","ส่งข้อความไม่สำเร็จ");
+      $("status").className = "err";
+      $("status").textContent = "ส่งข้อความไม่สำเร็จ";
     }
   });
 
+  // ✅ ส่งแบบ form-encoded + no-cors (กัน CORS/Failed to fetch)
+  function toFormBody(obj){
+    const p = new URLSearchParams();
+    Object.keys(obj).forEach(k => p.append(k, obj[k] ?? ""));
+    return p.toString();
+  }
+
   $("submit").addEventListener("click", async ()=>{
-    setStatus("muted","กำลังส่งคำขอ...");
+    $("status").className = "muted";
+    $("status").textContent = "กำลังส่งคำขอ...";
 
     try{
       const profile = await liff.getProfile();
 
-      // ✅ ส่งแบบ x-www-form-urlencoded (กัน CORS / Failed to fetch)
-      const form = new URLSearchParams();
-      form.set("line_user_id", profile.userId);
-      form.set("customer_name", $("customer_name").value.trim());
-      form.set("phone", $("phone").value.trim());
-      form.set("event_date", $("event_date").value); // YYYY-MM-DD
-      form.set("time_slot", $("time_slot").value);   // AM/PM
-      form.set("job_type", $("job_type").value);      // Photobooth / Telephone Booth
-      form.set("location", $("location").value.trim());
-      form.set("notes", $("notes").value.trim());
+      const payload = {
+        line_user_id: profile.userId,
+        customer_name: $("customer_name").value.trim(),
+        phone: $("phone").value.trim(),
+        event_date: $("event_date").value,    // YYYY-MM-DD
+        time_slot: $("time_slot").value,      // AM/PM
+        job_type: $("job_type").value,        // Photobooth / Telephone Booth
+        location: $("location").value.trim(),
+        notes: $("notes").value.trim(),
+      };
 
-      // สำคัญ: mode:'no-cors' = เบราว์เซอร์ไม่บล็อก (แต่เราอ่าน response ไม่ได้)
-      await fetch(GAS_EXEC_URL, {
+      await fetch(GAS_URL, {
         method: "POST",
+        mode: "no-cors", // สำคัญ: กัน CORS block
         headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
-        body: form.toString(),
-        mode: "no-cors"
+        body: toFormBody(payload)
       });
 
-      setStatus("ok","ส่งคำขอเรียบร้อย ✅ รอแอดมินยืนยันในแชทนี้ค่ะ");
+      // เราไม่อ่าน response (เพราะ no-cors) แต่ระบบจะยืนยันผลให้ใน LINE (push msg)
+      $("status").className = "ok";
+      $("status").textContent = "ส่งคำขอแล้ว ✅ กรุณารอข้อความยืนยันในแชทนี้ค่ะ";
+
     }catch(err){
-      setStatus("err","ผิดพลาด: Failed to fetch");
+      $("status").className = "err";
+      $("status").textContent = "ผิดพลาด: ส่งคำขอไม่สำเร็จ";
     }
   });
 
