@@ -164,3 +164,179 @@
 </script>
 </body>
 </html>
+
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fleurarose Booking</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body{font-family:system-ui,-apple-system,sans-serif;margin:16px}
+    .card{max-width:560px;margin:auto;border:1px solid #ddd;border-radius:14px;padding:14px}
+    h2{margin:0 0 6px 0}
+    .muted{color:#666;font-size:13px;margin:0 0 10px 0}
+    label{display:block;margin-top:10px;font-weight:700}
+    input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #ccc;margin-top:6px;font-size:16px}
+    textarea{resize:vertical}
+    button{width:100%;padding:14px;border-radius:12px;border:0;margin-top:12px;font-weight:800;font-size:16px}
+    .btn2{background:#f3f3f3}
+    .btn1{background:#111;color:#fff}
+    button:disabled{opacity:.45}
+    .row{display:flex;gap:10px}
+    .row>div{flex:1}
+    .err{color:#b00020;margin-top:8px}
+    .ok{color:#0a7a2f;margin-top:8px}
+    .small{font-size:12px;color:#666;margin-top:6px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>จองคิวถ่ายภาพ</h2>
+    <p class="muted">รอแอดมินยืนยันก่อน • มัดจำ 2,000 บาท (ไม่คืน)</p>
+
+    <label>ชื่อ-นามสกุล</label>
+    <input id="customer_name" placeholder="ชื่อ-นามสกุล" />
+
+    <label>เบอร์โทร</label>
+    <input id="phone" inputmode="tel" placeholder="09xxxxxxxx" />
+
+    <div class="row">
+      <div>
+        <label>วันที่</label>
+        <input id="event_date" type="date" />
+      </div>
+      <div>
+        <label>รอบ</label>
+        <select id="time_slot">
+          <option value="AM">เช้า 10:00–14:00</option>
+          <option value="PM">เย็น 18:00–22:00</option>
+        </select>
+      </div>
+    </div>
+
+    <label>ประเภทงาน</label>
+    <select id="job_type">
+      <option value="Photobooth">Photobooth</option>
+      <option value="Telephone Booth">Telephone Booth (ตู้โทรศัพท์)</option>
+    </select>
+
+    <label>สถานที่</label>
+    <input id="location" placeholder="เช่น Bangkok / สถานที่จัดงาน" />
+
+    <label>หมายเหตุ</label>
+    <textarea id="notes" rows="3" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+
+    <label style="display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:700">
+      <input id="agree" type="checkbox" style="width:auto;margin-top:4px" />
+      <span>ยอมรับเงื่อนไขมัดจำ 2,000 บาท (ไม่สามารถขอคืนได้)</span>
+    </label>
+    <div class="small">หากต้องการแบ่งย่อยงาน/ปรับรายละเอียดเพิ่มเติม โปรดกด “ติดต่อแอดมิน”</div>
+
+    <button id="submit" class="btn1" disabled>ส่งคำขอจอง</button>
+    <button id="contact" class="btn2" type="button">ติดต่อแอดมิน</button>
+
+    <div id="status" class="muted"></div>
+  </div>
+
+<script>
+  // ✅ LIFF ID ของหมิว
+  const LIFF_ID = "2008882886-ubJheqfN";
+
+  // ✅ ใส่ Web App /exec ของ Apps Script ของหมิว (สำคัญมาก)
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxPTpBKaN22K8JJfj-nDfgOIXP3nh2d70Y_V_-MFaPhhQZadwEIma0oiDnTG9CHdqs_/exec";
+
+  const $ = (id) => document.getElementById(id);
+
+  function validate(){
+    const ok =
+      $("agree").checked &&
+      $("customer_name").value.trim() &&
+      $("phone").value.trim() &&
+      $("event_date").value &&
+      $("time_slot").value &&
+      $("job_type").value;
+    $("submit").disabled = !ok;
+  }
+
+  ["customer_name","phone","event_date","time_slot","job_type","location","notes","agree"].forEach(id=>{
+    $(id).addEventListener("input", validate);
+    $(id).addEventListener("change", validate);
+  });
+
+  async function init(){
+    await liff.init({ liffId: LIFF_ID });
+    if(!liff.isLoggedIn()){
+      liff.login();
+      return;
+    }
+    validate();
+  }
+
+  $("contact").addEventListener("click", async ()=>{
+    try{
+      await liff.sendMessages([{ type:"text", text:"ติดต่อแอดมิน" }]);
+      $("status").className = "ok";
+      $("status").textContent = "ส่งข้อความถึงแอดมินแล้ว ✅";
+    }catch(e){
+      $("status").className = "err";
+      $("status").textContent = "ส่งข้อความไม่สำเร็จ";
+    }
+  });
+
+  // ✅ ส่งแบบ form-encoded + no-cors (กัน CORS/Failed to fetch)
+  function toFormBody(obj){
+    const p = new URLSearchParams();
+    Object.keys(obj).forEach(k => p.append(k, obj[k] ?? ""));
+    return p.toString();
+  }
+
+  $("submit").addEventListener("click", async ()=>{
+    $("status").className = "muted";
+    $("status").textContent = "กำลังส่งคำขอ...";
+
+    try{
+      const profile = await liff.getProfile();
+
+      const payload = {
+        line_user_id: profile.userId,
+        customer_name: $("customer_name").value.trim(),
+        phone: $("phone").value.trim(),
+        event_date: $("event_date").value,    // YYYY-MM-DD
+        time_slot: $("time_slot").value,      // AM/PM
+        job_type: $("job_type").value,        // Photobooth / Telephone Booth
+        location: $("location").value.trim(),
+        notes: $("notes").value.trim(),
+      };
+
+      await fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors", // สำคัญ: กัน CORS block
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body: toFormBody(payload)
+      });
+
+      // เราไม่อ่าน response (เพราะ no-cors) แต่ระบบจะยืนยันผลให้ใน LINE (push msg)
+      $("status").className = "ok";
+      $("status").textContent = "ส่งคำขอแล้ว ✅ กรุณารอข้อความยืนยันในแชทนี้ค่ะ";
+
+    }catch(err){
+      $("status").className = "err";
+      $("status").textContent = "ผิดพลาด: ส่งคำขอไม่สำเร็จ";
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>
+const OA_BASIC_ID = "@262clszf"; //  
+
+$("contact").addEventListener("click", ()=>{
+  // เปิดแชท OA ให้ผู้ใช้คุยกับแอดมินทันที
+  const url = `https://line.me/R/ti/p/${encodeURIComponent(@262clszf)}`;
+  window.location.href = url;
+});
+
+
