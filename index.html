@@ -1,83 +1,159 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Fleurarose Booking</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
   <style>
-    body { font-family: sans-serif; padding: 16px; }
-    input, select, textarea, button {
-      width: 100%; margin-bottom: 12px; padding: 8px;
-    }
+    body{font-family:system-ui,-apple-system,sans-serif;margin:16px;background:#fff}
+    .card{max-width:560px;margin:auto;border:1px solid #e5e5e5;border-radius:16px;padding:16px}
+    h2{margin:0 0 6px 0}
+    .muted{color:#666;font-size:13px;margin:0 0 10px 0}
+    label{display:block;margin-top:10px;font-weight:700}
+    input,select,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #ccc;margin-top:6px;font-size:16px}
+    textarea{resize:vertical}
+    button{width:100%;padding:14px;border-radius:12px;border:0;margin-top:12px;font-weight:800;font-size:16px}
+    .btn1{background:#111;color:#fff}
+    .btn2{background:#f3f3f3}
+    button:disabled{opacity:.45}
+    .row{display:flex;gap:10px}
+    .row>div{flex:1}
+    .err{color:#b00020;margin-top:10px}
+    .ok{color:#0a7a2f;margin-top:10px}
+    .small{font-size:12px;color:#666;margin-top:6px}
   </style>
 </head>
 <body>
+  <div class="card">
+    <h2>จองคิวถ่ายภาพ</h2>
+    <p class="muted">รอแอดมินยืนยันก่อน • มัดจำ 2,000 บาท (ไม่คืน)</p>
 
-<h2>จองคิวถ่ายภาพ</h2>
+    <label>ชื่อ-นามสกุล</label>
+    <input id="customer_name" placeholder="ชื่อ-นามสกุล" />
 
-<input id="name" placeholder="ชื่อ-นามสกุล" />
-<input id="phone" placeholder="เบอร์โทร" />
+    <label>เบอร์โทร</label>
+    <input id="phone" inputmode="tel" placeholder="09xxxxxxxx" />
 
-<input id="date" type="date" />
+    <div class="row">
+      <div>
+        <label>วันที่</label>
+        <input id="event_date" type="date" />
+      </div>
+      <div>
+        <label>รอบ</label>
+        <select id="time_slot">
+          <option value="AM">เช้า 10:00–14:00</option>
+          <option value="PM">เย็น 18:00–22:00</option>
+        </select>
+      </div>
+    </div>
 
-<select id="slot">
-  <option value="AM">เช้า 10:00–14:00</option>
-  <option value="PM">เย็น 18:00–22:00</option>
-</select>
+    <label>ประเภทงาน</label>
+    <select id="job_type">
+      <option value="Photobooth">Photobooth</option>
+      <option value="Telephone Booth">ตู้โทรศัพท์</option>
+    </select>
 
-<select id="jobType">
-  <option value="Photobooth">Photobooth</option>
-  <option value="Telephone Booth">Telephone Booth</option>
-</select>
+    <label>สถานที่</label>
+    <input id="location" placeholder="เช่น Bangkok / สถานที่จัดงาน" />
 
-<input id="location" placeholder="สถานที่" />
-<textarea id="note" placeholder="หมายเหตุ"></textarea>
+    <label>หมายเหตุ</label>
+    <textarea id="notes" rows="3" placeholder="รายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
 
-<button onclick="submitBooking()">ส่งคำขอจอง</button>
+    <label style="display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-weight:700">
+      <input id="agree" type="checkbox" style="width:auto;margin-top:4px" />
+      <span>ยอมรับเงื่อนไขมัดจำ 2,000 บาท (ไม่สามารถขอคืนได้)</span>
+    </label>
+    <div class="small">หากต้องการแบ่งย่อยงาน/ปรับรายละเอียดเพิ่มเติม โปรดกด “ติดต่อแอดมิน”</div>
 
-<p id="status"></p>
+    <button id="submit" class="btn1" disabled>ส่งคำขอจอง</button>
+    <button id="contact" class="btn2" type="button">ติดต่อแอดมิน</button>
+
+    <div id="status" class="muted"></div>
+  </div>
 
 <script>
-const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzaJSmFOCc5lxZTydACnuPxHFK-TTCniAb2lqaoO3Q93zSwSdJCEodMSTiUyPQhBddp/exec";
+  // ✅ ใส่ของหมิว
+  const LIFF_ID = "2008882886-ubJheqfN";
 
-async function submitBooking() {
-  document.getElementById("status").innerText = "กำลังส่งข้อมูล...";
+  // ✅ ใส่ Apps Script Web App /exec ของหมิว (ห้าม /dev)
+  const GAS_EXEC_URL = "PASTE_YOUR_GAS_EXEC_URL_HERE";
 
-  const payload = {
-    line_user_id: liff.getContext().userId,
-    customer_name: name.value,
-    phone: phone.value,
-    event_date: date.value,
-    time_slot: slot.value,
-    job_type: jobType.value,
-    location: location.value,
-    notes: note.value
-  };
+  const $ = (id) => document.getElementById(id);
 
-  try {
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const json = await res.json();
-    document.getElementById("status").innerText =
-      json.ok ? "ส่งคำขอเรียบร้อย" : "ผิดพลาด: " + json.message;
-
-  } catch (err) {
-    document.getElementById("status").innerText =
-      "ผิดพลาด: Failed to fetch";
+  function setStatus(type, msg){
+    $("status").className = type;
+    $("status").textContent = msg;
   }
-}
 
-liff.init({ liffId: "2008882886-ubJheqfN" });
+  function validate(){
+    const ok =
+      $("agree").checked &&
+      $("customer_name").value.trim() &&
+      $("phone").value.trim() &&
+      $("event_date").value &&
+      $("time_slot").value &&
+      $("job_type").value;
+    $("submit").disabled = !ok;
+  }
+
+  ["customer_name","phone","event_date","time_slot","job_type","location","notes","agree"].forEach(id=>{
+    $(id).addEventListener("input", validate);
+    $(id).addEventListener("change", validate);
+  });
+
+  async function init(){
+    await liff.init({ liffId: LIFF_ID });
+
+    if(!liff.isLoggedIn()){
+      liff.login();
+      return;
+    }
+    validate();
+  }
+
+  $("contact").addEventListener("click", async ()=>{
+    try{
+      await liff.sendMessages([{ type:"text", text:"ติดต่อแอดมิน" }]);
+      setStatus("ok","ส่งข้อความถึงแอดมินแล้ว ✅");
+    }catch(e){
+      setStatus("err","ส่งข้อความไม่สำเร็จ");
+    }
+  });
+
+  $("submit").addEventListener("click", async ()=>{
+    setStatus("muted","กำลังส่งคำขอ...");
+
+    try{
+      const profile = await liff.getProfile();
+
+      // ✅ ส่งแบบ x-www-form-urlencoded (กัน CORS / Failed to fetch)
+      const form = new URLSearchParams();
+      form.set("line_user_id", profile.userId);
+      form.set("customer_name", $("customer_name").value.trim());
+      form.set("phone", $("phone").value.trim());
+      form.set("event_date", $("event_date").value); // YYYY-MM-DD
+      form.set("time_slot", $("time_slot").value);   // AM/PM
+      form.set("job_type", $("job_type").value);      // Photobooth / Telephone Booth
+      form.set("location", $("location").value.trim());
+      form.set("notes", $("notes").value.trim());
+
+      // สำคัญ: mode:'no-cors' = เบราว์เซอร์ไม่บล็อก (แต่เราอ่าน response ไม่ได้)
+      await fetch(GAS_EXEC_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        body: form.toString(),
+        mode: "no-cors"
+      });
+
+      setStatus("ok","ส่งคำขอเรียบร้อย ✅ รอแอดมินยืนยันในแชทนี้ค่ะ");
+    }catch(err){
+      setStatus("err","ผิดพลาด: Failed to fetch");
+    }
+  });
+
+  init();
 </script>
-
 </body>
 </html>
