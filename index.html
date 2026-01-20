@@ -113,12 +113,15 @@
   }
 
   async function submitBooking() {
-    setStatus("");
-    const err = validate();
-    if (err) { setStatus(err); return; }
+    const res = await fetch(GAS_URL, {
+  method: "POST",
+  // ห้ามใส่ headers: { "Content-Type": "application/json" }  ❌
+  // ส่งเป็น text/plain เพื่อเลี่ยง preflight
+  headers: { "Content-Type": "text/plain;charset=utf-8" },
+  body: JSON.stringify(payload),
+});
+const json = await res.json();
 
-    const lineUserId = liff.getContext()?.userId || "";
-    if (!lineUserId) { setStatus("ไม่พบ LINE userId (กรุณาเปิดผ่าน LINE)"); return; }
 
     const payload = {
       line_user_id: lineUserId,
