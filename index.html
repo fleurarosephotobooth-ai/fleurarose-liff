@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fleurarose Booking</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body{font-family:system-ui,sans-serif;margin:16px}
+    .card{max-width:520px;margin:auto;border:1px solid #ddd;border-radius:14px;padding:14px}
+    label{display:block;margin-top:10px;font-weight:700}
+    input,select,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #ccc;margin-top:6px}
+    button{width:100%;padding:12px;border-radius:12px;border:0;margin-top:14px;font-weight:800}
+    button:disabled{opacity:.5}
+    .muted{color:#666;font-size:13px;margin-top:8px}
+    .row{display:flex;gap:10px}
+    .row > div{flex:1}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="margin:0">จองคิวถ่ายภาพ</h2>
+    <div class="muted">รอแอดมินยืนยันก่อน • มัดจำ 2,000 บาท (ไม่คืน)</div>
+
+    <label>ชื่อ-นามสกุล</label>
+    <input id="name" placeholder="ชื่อ-นามสกุล" />
+
+    <label>เบอร์โทร</label>
+    <input id="phone" inputmode="tel" placeholder="09xxxxxxxx" />
+
+    <div class="row">
+      <div>
+        <label>วันที่</label>
+        <input id="event_date" type="date" />
+      </div>
+      <div>
+        <label>รอบ</label>
+        <select id="time_slot">
+          <option value="AM">เช้า 10:00–14:00</option>
+          <option value="PM">เย็น 18:00–22:00</option>
+        </select>
+      </div>
+    </div>
+
+    <label>ประเภทงาน</label>
+    <select id="job_type">
+      <option value="Photobooth">Photobooth</option>
+      <option value="Telephone Booth">Telephone Booth</option>
+    </select>
+
+    <label>สถานที่</label>
+    <input id="location" placeholder="ชื่อสถานที่ / เขต" />
+
+    <label>หมายเหตุ</label>
+    <textarea id="notes" rows="3"></textarea>
+
+    <label style="font-weight:700">
+      <input id="agree" type="checkbox" />
+      ยอมรับเงื่อนไขมัดจำ 2,000 บาท (ไม่สามารถขอคืนได้)
+    </label>
+
+    <button id="submit" disabled>ส่งคำขอจอง</button>
+    <div id="status" class="muted"></div>
+  </div>
+
+<script>
+  const LIFF_ID = "2008882886-ubJheqfN";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzaJSmFOCc5lxZTydACnuPxHFK-TTCniAb2lqaoO3Q93zSwSdJCEodMSTiUyPQhBddp/exec";
+
+  const $ = (id)=>document.getElementById(id);
+  function validate(){
+    const ok = $("agree").checked && $("name").value.trim() && $("phone").value.trim()
+      && $("event_date").value && $("time_slot").value && $("job_type").value;
+    $("submit").disabled = !ok;
+  }
+  ["name","phone","event_date","time_slot","job_type","location","notes","agree"].forEach(id=>{
+    $(id).addEventListener("input", validate);
+    $(id).addEventListener("change", validate);
+  });
+
+  async function init(){
+    await liff.init({ liffId: LIFF_ID });
+    if(!liff.isLoggedIn()){ liff.login(); return; }
+    validate();
+  }
+
+  $("submit").addEventListener("click", async ()=>{
+    try{
+      $("status").textContent = "กำลังส่งคำขอ...";
+      const p = await liff.getProfile();
+
+      const payload = {
+        line_user_id: p.userId,
+        customer_name: $("name").value.trim(),
+        phone: $("phone").value.trim(),
+        event_date: $("event_date").value, // YYYY-MM-DD
+        time_slot: $("time_slot").value,   // AM/PM
+        job_type: $("job_type").value,     // Photobooth/Telephone Booth
+        location: $("location").value.trim(),
+        notes: $("notes").value.trim()
+      };
+
+      const res = await fetch(WEBAPP_URL, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.message || "ส่งไม่สำเร็จ");
+
+      $("status").textContent = "ส่งคำขอเรียบร้อย ✅ รอแอดมินยืนยันในแชทนี้ค่ะ";
+    }catch(e){
+      $("status").textContent = "ผิดพลาด: " + e.message;
+    }
+  });
+
+  init();
+</script>
+</body>
+</html>
