@@ -3,14 +3,17 @@
 <head>
   <meta charset="utf-8">
   <title>Fleurarose Booking</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
+  <h2>จองคิว Fleurarose</h2>
+
   <button id="submit">ส่งคำขอจอง</button>
 
 <script>
 const LIFF_ID = "2008882886-ubJheqfN";
-const GAS_URL = "PUT_YOUR_WEBAPP_EXEC_URL_HERE";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec"; // ← ใช้ exec ล่าสุด
 
 async function main() {
   await liff.init({ liffId: LIFF_ID });
@@ -22,7 +25,7 @@ document.getElementById("submit").onclick = async () => {
   const payload = {
     line_user_id: profile.userId,
     line_display_name: profile.displayName,
-    customer_name: "ลูกค้าทดสอบ",
+    customer_name: "ทดสอบ",
     phone: "0999999999",
     event_date: "2026-03-14",
     time_slot: "AM",
