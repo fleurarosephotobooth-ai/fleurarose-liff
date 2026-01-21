@@ -24,12 +24,10 @@
     .ok{color:#0a7;margin-top:10px;font-weight:600}
     .chk{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
     .chk input{width:22px;height:22px;margin-top:3px}
-    .topbar{display:flex;justify-content:center;font-weight:700;margin-bottom:8px}
   </style>
 </head>
 <body>
   <div class="card">
-    <div class="topbar">Fleurarose Booking</div>
     <h2>จองคิวถ่ายภาพ</h2>
 
     <label>ชื่อ-นามสกุล</label>
@@ -55,7 +53,10 @@
     <label>ประเภทงาน</label>
     <select id="job_type">
       <option value="Photobooth">Photobooth</option>
-      <option value="Telephone Booth">Telephone Booth</option>
+      <option value="Automate">Automate</option>
+      <option value="Telephone booth สีฟ้าขาว 1">Telephone booth สีฟ้าขาว 1</option>
+      <option value="Telephone booth สีฟ้าขาว 2">Telephone booth สีฟ้าขาว 2</option>
+      <option value="Telephone booth สีน้ำตาล">Telephone booth สีน้ำตาล</option>
     </select>
 
     <label>สถานที่</label>
@@ -75,16 +76,17 @@
     <button class="primary" id="btnSubmit">ส่งคำขอจอง</button>
     <button class="secondary" id="btnContact" style="margin-top:10px">ติดต่อแอดมิน</button>
 
-    <div id="msg" class="hint"></div>
     <div id="status"></div>
   </div>
 
 <script>
-  // === แก้ 2 จุดนี้ ===
+  // ✅ LIFF ของหมิว
   const LIFF_ID = "2008882886-ubJheqfN";
+
+  // ✅ Web App /exec ของหมิว
   const GAS_URL  = "https://script.google.com/macros/s/AKfycbxPTpBKaN22K8JJfj-nDfgOIXP3nh2d70Y_V_-MFaPhhQZadwEIma0oiDnTG9CHdqs_/exec";
 
-  // OA (ปุ่มติดต่อแอดมิน)
+  // ✅ OA Basic ID
   const OA_BASIC_ID = "@262clszf";
 
   const $ = (id) => document.getElementById(id);
@@ -93,15 +95,9 @@
     $("status").textContent = text || "";
   };
 
-  async function init() {
-    try {
-      await liff.init({ liffId: LIFF_ID });
-      $("msg").textContent = liff.isInClient()
-        ? "พร้อมใช้งาน"
-        : "แนะนำให้เปิดผ่าน LINE เพื่อให้ทำงานสมบูรณ์";
-    } catch (e) {
-      setStatus("LIFF init error: " + e.message);
-    }
+  async function init(){
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) { liff.login(); return; }
   }
 
   function validate() {
@@ -112,16 +108,29 @@
     return "";
   }
 
-  async function submitBooking() {
+  $("btnContact").addEventListener("click", ()=>{
+    // เปิดแชท OA แน่นอน
+    window.location.href = `https://line.me/R/ti/p/${encodeURIComponent(OA_BASIC_ID)}`;
+  });
+
+  $("btnSubmit").addEventListener("click", async ()=>{
     setStatus("");
     const err = validate();
     if (err) { setStatus(err); return; }
 
-    const lineUserId = liff.getContext()?.userId || "";
-    if (!lineUserId) { setStatus("ไม่พบ LINE userId (กรุณาเปิดผ่าน LINE)"); return; }
+    const ctxUserId = liff.getContext()?.userId || "";
+    if (!ctxUserId) { setStatus("ไม่พบ LINE userId (กรุณาเปิดผ่าน LINE)"); return; }
+
+    // ✅ ดึงชื่อ LINE ลูกค้า
+    let displayName = "";
+    try {
+      const profile = await liff.getProfile();
+      displayName = profile?.displayName || "";
+    } catch (e) {}
 
     const payload = {
-      line_user_id: lineUserId,
+      line_user_id: ctxUserId,
+      line_display_name: displayName, // ✅ เพิ่ม
       customer_name: $("customer_name").value.trim(),
       phone: $("phone").value.trim(),
       event_date: $("event_date").value, // YYYY-MM-DD
@@ -135,36 +144,24 @@
     $("btnSubmit").textContent = "กำลังส่ง...";
 
     try {
-      // ✅ สำคัญ: ส่งแบบ text/plain เพื่อเลี่ยง CORS preflight (แก้ Failed to fetch)
+      // ✅ ส่งแบบ text/plain กัน preflight/CORS (ลด Failed to fetch)
       const res = await fetch(GAS_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload),
       });
-
       const json = await res.json();
 
-      if (!json.ok) {
-        setStatus("ส่งไม่สำเร็จ: " + (json.message || "unknown"));
-      } else {
-        setStatus("ส่งคำขอจองเรียบร้อย ✅ (รอแอดมินยืนยัน)", true);
-      }
+      if (!json.ok) setStatus("ส่งไม่สำเร็จ: " + (json.message || "unknown"));
+      else setStatus("ส่งคำขอจองเรียบร้อย ✅ (รอแอดมินยืนยัน)", true);
+
     } catch (e) {
       setStatus("ส่งไม่สำเร็จ: Failed to fetch");
     } finally {
       $("btnSubmit").disabled = false;
       $("btnSubmit").textContent = "ส่งคำขอจอง";
     }
-  }
-
-  function contactAdmin() {
-    // เปิดแชท OA แน่นอน
-    const url = `https://line.me/R/ti/p/${encodeURIComponent(OA_BASIC_ID)}`;
-    window.location.href = url;
-  }
-
-  $("btnSubmit").addEventListener("click", submitBooking);
-  $("btnContact").addEventListener("click", contactAdmin);
+  });
 
   init();
 </script>
