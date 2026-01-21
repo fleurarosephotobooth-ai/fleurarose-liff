@@ -1,49 +1,280 @@
 <!doctype html>
-<html>
+<html lang="th">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Fleurarose Booking</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    :root{
+      --bg:#0b0b0d;
+      --card:#121218;
+      --muted:#a3a3b2;
+      --text:#f3f3f7;
+      --line:#2a2a36;
+      --accent:#ffffff;
+      --danger:#ff4d4f;
+      --ok:#29c76f;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 600px at 20% 0%, #1b1b27 0%, var(--bg) 55%),
+                  radial-gradient(900px 500px at 90% 20%, #1a1a1f 0%, var(--bg) 60%);
+      color:var(--text);
+    }
+    .wrap{max-width:860px;margin:0 auto;padding:28px 16px 40px}
+    .hero{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .title{font-size:26px;font-weight:800;letter-spacing:.2px}
+    .sub{color:var(--muted);font-size:13px;line-height:1.5;margin-top:6px}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);
+      border-radius:999px;background:rgba(255,255,255,.04);color:var(--muted);font-size:12px}
+    .card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow: 0 18px 60px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+    .cardHead{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;padding:18px}
+    @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+    input, select, textarea{
+      width:100%;padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.25); color:var(--text); outline:none;
+    }
+    input:focus, select:focus, textarea:focus{border-color:rgba(255,255,255,.35)}
+    textarea{min-height:92px;resize:vertical}
+    .rowFull{grid-column:1/-1}
+    .terms{
+      display:flex;gap:10px;align-items:flex-start;padding:14px 18px;border-top:1px solid rgba(255,255,255,.06);
+      background:rgba(0,0,0,.12)
+    }
+    .terms input{width:auto;margin-top:3px}
+    .terms .t1{font-size:13px;font-weight:700}
+    .terms .t2{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+    .actions{
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;
+      padding:18px;border-top:1px solid rgba(255,255,255,.06)
+    }
+    button{
+      border:none;border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;
+    }
+    .btnPrimary{background:var(--accent);color:#0b0b0d;min-width:170px}
+    .btnGhost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.18)}
+    .btnPrimary:disabled{opacity:.55;cursor:not-allowed}
+    .noteBar{padding:10px 18px 0;color:var(--muted);font-size:12px}
+    .alert{padding:10px 18px 0;font-size:13px}
+    .alert.ok{color:var(--ok)}
+    .alert.bad{color:var(--danger)}
+    .mini{font-size:12px;color:var(--muted)}
+    .badge{display:inline-block;padding:2px 8px;border:1px solid rgba(255,255,255,.14);border-radius:999px}
+  </style>
 </head>
 <body>
-  <h2>จองคิว Fleurarose</h2>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <div class="title">Fleurarose Booking</div>
+        <div class="sub">
+          รับจองเป็น “รอบ” • เช้า 10:00–14:00 / เย็น 18:00–22:00<br/>
+          <span class="badge">มัดจำ 2,000</span> จ่าย “หลังแอดมินคอนเฟิร์ม” เท่านั้น • แบ่งย่อยงานคุยกับแอดมินได้
+        </div>
+      </div>
+      <div class="pill" id="pill">กำลังเชื่อมต่อ LIFF…</div>
+    </div>
 
-  <button id="submit">ส่งคำขอจอง</button>
+    <div class="card">
+      <div class="cardHead">
+        <div style="font-weight:800">จองคิวถ่ายภาพ</div>
+        <div class="mini">กรอกข้อมูลให้ครบ แล้วกด “ส่งคำขอจอง”</div>
+      </div>
+
+      <div class="grid">
+        <div class="rowFull">
+          <label>ชื่อ-นามสกุล</label>
+          <input id="customer_name" placeholder="เช่น มอหมิว / Mint..." />
+        </div>
+
+        <div>
+          <label>เบอร์โทร</label>
+          <input id="phone" placeholder="เช่น 063xxxxxxx" inputmode="numeric" />
+        </div>
+
+        <div>
+          <label>วันที่</label>
+          <input id="event_date" type="date" />
+        </div>
+
+        <div>
+          <label>รอบ</label>
+          <select id="time_slot">
+            <option value="AM">เช้า 10:00–14:00</option>
+            <option value="PM">เย็น 18:00–22:00</option>
+          </select>
+        </div>
+
+        <div class="rowFull">
+          <label>ประเภทงาน</label>
+          <select id="job_type">
+            <option>Photobooth</option>
+            <option>Automate</option>
+            <option>Telephone booth สีฟ้าขาว 1</option>
+            <option>Telephone booth สีฟ้าขาว 2</option>
+            <option>Telephone booth สีน้ำตาล</option>
+          </select>
+        </div>
+
+        <div class="rowFull">
+          <label>สถานที่</label>
+          <input id="location" placeholder="เช่น Bangkok / ชื่อสถานที่จัดงาน" />
+        </div>
+
+        <div class="rowFull">
+          <label>หมายเหตุ</label>
+          <textarea id="notes" placeholder="เช่น จุดจอดรถ / เวลานัด / รายละเอียดเพิ่มเติม"></textarea>
+        </div>
+      </div>
+
+      <div class="terms">
+        <input id="agree" type="checkbox" />
+        <div>
+          <div class="t1">ยอมรับเงื่อนไขมัดจำ 2,000 บาท (ไม่สามารถขอคืนได้)</div>
+          <div class="t2">จ่ายหลังแอดมินคอนเฟิร์มเท่านั้น • หากต้องการแบ่งย่อยงาน/ปรับรายละเอียด กด “ติดต่อแอดมิน”</div>
+        </div>
+      </div>
+
+      <div class="noteBar" id="statusText"></div>
+
+      <div class="actions">
+        <button class="btnGhost" id="btnAdmin">ติดต่อแอดมิน</button>
+        <button class="btnPrimary" id="btnSubmit" disabled>ส่งคำขอจอง</button>
+      </div>
+
+      <div class="alert" id="alert"></div>
+      <div style="height:12px"></div>
+    </div>
+  </div>
 
 <script>
-const LIFF_ID = "2008882886-ubJheqfN";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec"; // ← ใช้ exec ล่าสุด
+  // ========= CONFIG =========
+  const LIFF_ID = "2008882886-ubJheqfN";
+  const GAS_BOOKING_URL = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec";
+  const OA_BASIC_ID = "@262clszf";
+  const OA_LINK = "https://line.me/R/ti/p/" + encodeURIComponent(OA_BASIC_ID); // เปิด OA ให้คุยแอดมิน
+  // ==========================
 
-async function main() {
-  await liff.init({ liffId: LIFF_ID });
-}
+  const el = (id)=>document.getElementById(id);
+  const pill = el("pill");
+  const alertBox = el("alert");
+  const btnSubmit = el("btnSubmit");
+  const btnAdmin = el("btnAdmin");
 
-document.getElementById("submit").onclick = async () => {
-  const profile = await liff.getProfile();
+  let profile = null;
 
-  const payload = {
-    line_user_id: profile.userId,
-    line_display_name: profile.displayName,
-    customer_name: "ทดสอบ",
-    phone: "0999999999",
-    event_date: "2026-03-14",
-    time_slot: "AM",
-    job_type: "Photobooth",
-    location: "",
-    notes: ""
-  };
+  function setAlert(type, msg){
+    alertBox.className = "alert " + (type || "");
+    alertBox.textContent = msg || "";
+  }
 
-  await fetch(GAS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+  function canSubmit(){
+    const ok =
+      el("agree").checked &&
+      el("customer_name").value.trim().length >= 2 &&
+      el("phone").value.trim().length >= 8 &&
+      el("event_date").value &&
+      el("location").value.trim().length >= 2;
+    btnSubmit.disabled = !ok;
+  }
+
+  ["agree","customer_name","phone","event_date","time_slot","job_type","location","notes"].forEach(id=>{
+    el(id).addEventListener("input", canSubmit);
+    el(id).addEventListener("change", canSubmit);
   });
 
-  alert("ส่งคำขอจองแล้ว");
-};
+  btnAdmin.onclick = async ()=>{
+    try{
+      if (window.liff && liff.isInClient()){
+        liff.openWindow({ url: OA_LINK, external: true });
+      }else{
+        window.open(OA_LINK, "_blank");
+      }
+    }catch(e){
+      window.open(OA_LINK, "_blank");
+    }
+  };
 
-main();
+  async function init(){
+    try{
+      await liff.init({ liffId: LIFF_ID });
+      if (!liff.isLoggedIn()) liff.login();
+
+      profile = await liff.getProfile();
+      pill.textContent = "เชื่อมต่อแล้ว: " + (profile.displayName || "LINE user");
+      pill.style.color = "#cfe8d5";
+      setAlert("", "");
+
+      // default date = วันนี้
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth()+1).padStart(2,"0");
+      const dd = String(today.getDate()).padStart(2,"0");
+      el("event_date").value = `${yyyy}-${mm}-${dd}`;
+
+      canSubmit();
+    }catch(err){
+      pill.textContent = "เปิดผ่าน LINE เพื่อใช้งาน";
+      pill.style.color = "#ffd1d1";
+      setAlert("bad", "กรุณาเปิดผ่าน LIFF ใน LINE เพื่อใช้งาน (ไม่ควรเปิดจากเบราว์เซอร์ปกติ)");
+    }
+  }
+
+  btnSubmit.onclick = async ()=>{
+    setAlert("", "");
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "กำลังส่ง…";
+
+    try{
+      if (!profile) profile = await liff.getProfile();
+
+      const payload = {
+        line_user_id: profile.userId,
+        line_display_name: profile.displayName,
+        customer_name: el("customer_name").value.trim(),
+        phone: el("phone").value.trim(),
+        event_date: el("event_date").value, // yyyy-mm-dd
+        time_slot: el("time_slot").value,   // AM/PM
+        job_type: el("job_type").value,
+        location: el("location").value.trim(),
+        notes: el("notes").value.trim()
+      };
+
+      // กัน CORS/preflight: ใช้ no-cors เพื่อส่งให้ถึงแน่นอน
+      await fetch(GAS_BOOKING_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      setAlert("ok", "ส่งคำขอจองเรียบร้อย ✅ ระบบบันทึกเป็น Pending (รอแอดมินยืนยัน)");
+      btnSubmit.textContent = "ส่งคำขอจอง";
+      canSubmit();
+
+      // ปิดหน้าต่าง LIFF (optional)
+      if (window.liff && liff.isInClient()){
+        setTimeout(()=>{ try{ liff.closeWindow(); }catch(e){} }, 900);
+      }
+    }catch(err){
+      setAlert("bad", "ส่งไม่สำเร็จ กรุณาลองใหม่ หรือกด “ติดต่อแอดมิน”");
+      btnSubmit.textContent = "ส่งคำขอจอง";
+      canSubmit();
+    }
+  };
+
+  init();
 </script>
 </body>
 </html>
