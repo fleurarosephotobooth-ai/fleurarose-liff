@@ -7,100 +7,93 @@
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     :root{
-      --bg:#0b0b0d;
-      --card:#121218;
-      --muted:#a3a3b2;
-      --text:#f3f3f7;
-      --line:#2a2a36;
-      --accent:#ffffff;
-      --danger:#ff4d4f;
-      --ok:#29c76f;
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --primary:#111827;
+      --primary2:#374151;
+      --ok:#16a34a;
+      --bad:#dc2626;
+      --shadow:0 10px 25px rgba(0,0,0,.08);
+      --radius:18px;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1200px 600px at 20% 0%, #1b1b27 0%, var(--bg) 55%),
-                  radial-gradient(900px 500px at 90% 20%, #1a1a1f 0%, var(--bg) 60%);
-      color:var(--text);
+    body{margin:0;background:var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Thai",Arial;}
+    .wrap{max-width:720px;margin:0 auto;padding:22px;}
+    .brand{display:flex;align-items:center;gap:12px;margin:8px 0 14px;}
+    .logo{
+      width:42px;height:42px;border-radius:14px;background:#111827;color:#fff;
+      display:grid;place-items:center;font-weight:800;letter-spacing:.5px;
+      box-shadow:var(--shadow);
     }
-    .wrap{max-width:860px;margin:0 auto;padding:28px 16px 40px}
-    .hero{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
-    .title{font-size:26px;font-weight:800;letter-spacing:.2px}
-    .sub{color:var(--muted);font-size:13px;line-height:1.5;margin-top:6px}
-    .pill{display:inline-flex;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);
-      border-radius:999px;background:rgba(255,255,255,.04);color:var(--muted);font-size:12px}
-    .card{
-      border:1px solid var(--line);
-      border-radius:18px;
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      box-shadow: 0 18px 60px rgba(0,0,0,.45);
-      overflow:hidden;
+    .brand h1{font-size:22px;margin:0;color:var(--text);}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:13px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
+    .card .hd{padding:16px 16px 6px}
+    .card .hd .sub{color:var(--muted);font-size:13px;margin-top:6px;line-height:1.4}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px 16px}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+    label{font-size:13px;color:var(--muted);display:block;margin:2px 0 6px}
+    input,select,textarea{
+      width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;
+      padding:12px 12px;background:#fff;font-size:15px;outline:none;color:var(--text);
     }
-    .cardHead{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px;padding:18px}
-    @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
-    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
-    input, select, textarea{
-      width:100%;padding:12px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.25); color:var(--text); outline:none;
-    }
-    input:focus, select:focus, textarea:focus{border-color:rgba(255,255,255,.35)}
     textarea{min-height:92px;resize:vertical}
-    .rowFull{grid-column:1/-1}
-    .terms{
-      display:flex;gap:10px;align-items:flex-start;padding:14px 18px;border-top:1px solid rgba(255,255,255,.06);
-      background:rgba(0,0,0,.12)
+    input:focus,select:focus,textarea:focus{border-color:#9ca3af;box-shadow:0 0 0 4px rgba(17,24,39,.06)}
+    .row{grid-column:1/-1}
+    .pill{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:8px 10px;border-radius:999px;background:#f3f4f6;border:1px solid var(--line);
+      font-size:13px;color:var(--muted)
     }
-    .terms input{width:auto;margin-top:3px}
-    .terms .t1{font-size:13px;font-weight:700}
-    .terms .t2{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
-    .actions{
-      display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;
-      padding:18px;border-top:1px solid rgba(255,255,255,.06)
+    .btnbar{display:flex;gap:10px;flex-wrap:wrap;padding:0 16px 16px}
+    .btn{
+      border:none;border-radius:16px;padding:13px 16px;font-size:15px;font-weight:700;
+      cursor:pointer;transition:.15s transform,.15s opacity;
     }
-    button{
-      border:none;border-radius:14px;padding:12px 16px;font-weight:800;cursor:pointer;
-    }
-    .btnPrimary{background:var(--accent);color:#0b0b0d;min-width:170px}
-    .btnGhost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.18)}
-    .btnPrimary:disabled{opacity:.55;cursor:not-allowed}
-    .noteBar{padding:10px 18px 0;color:var(--muted);font-size:12px}
-    .alert{padding:10px 18px 0;font-size:13px}
-    .alert.ok{color:var(--ok)}
-    .alert.bad{color:var(--danger)}
-    .mini{font-size:12px;color:var(--muted)}
-    .badge{display:inline-block;padding:2px 8px;border:1px solid rgba(255,255,255,.14);border-radius:999px}
+    .btn:active{transform:scale(.98)}
+    .btn.primary{background:var(--primary);color:#fff;flex:1}
+    .btn.ghost{background:#fff;color:var(--primary);border:1px solid var(--line)}
+    .terms{display:flex;gap:10px;align-items:flex-start;padding:0 16px 12px}
+    .terms input{width:auto;margin-top:4px}
+    .terms .t{font-size:13px;color:var(--muted);line-height:1.45}
+    .msg{padding:0 16px 16px;font-size:14px}
+    .msg.ok{color:var(--ok)}
+    .msg.bad{color:var(--bad)}
+    .mini{font-size:12px;color:var(--muted);padding:0 16px 16px}
+    .hide{display:none}
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <div class="hero">
+    <div class="brand">
+      <div class="logo">FR</div>
       <div>
-        <div class="title">Fleurarose Booking</div>
-        <div class="sub">
-          รับจองเป็น “รอบ” • เช้า 10:00–14:00 / เย็น 18:00–22:00<br/>
-          <span class="badge">มัดจำ 2,000</span> จ่าย “หลังแอดมินคอนเฟิร์ม” เท่านั้น • แบ่งย่อยงานคุยกับแอดมินได้
-        </div>
+        <h1>Fleurarose Booking</h1>
+        <p id="who">กำลังโหลดข้อมูล LINE…</p>
       </div>
-      <div class="pill" id="pill">กำลังเชื่อมต่อ LIFF…</div>
     </div>
 
     <div class="card">
-      <div class="cardHead">
-        <div style="font-weight:800">จองคิวถ่ายภาพ</div>
-        <div class="mini">กรอกข้อมูลให้ครบ แล้วกด “ส่งคำขอจอง”</div>
+      <div class="hd">
+        <div class="pill">📌 ชำระ “มัดจำ 2,000 บาท” หลังแอดมินยืนยันเท่านั้น</div>
+        <div class="sub">
+          เลือกวัน/รอบ และประเภทงาน ระบบจะส่งคำขอจองเข้าแอดมินเพื่อยืนยันคิว<br/>
+          หากต้องการ “แบ่งย่อยงาน” ให้กด <b>ติดต่อแอดมิน</b>
+        </div>
       </div>
 
       <div class="grid">
-        <div class="rowFull">
+        <div>
           <label>ชื่อ-นามสกุล</label>
-          <input id="customer_name" placeholder="เช่น มอหมิว / Mint..." />
+          <input id="customer_name" placeholder="เช่น Mew..." />
         </div>
 
         <div>
           <label>เบอร์โทร</label>
-          <input id="phone" placeholder="เช่น 063xxxxxxx" inputmode="numeric" />
+          <input id="phone" inputmode="tel" placeholder="0XXXXXXXXX" />
         </div>
 
         <div>
@@ -116,7 +109,7 @@
           </select>
         </div>
 
-        <div class="rowFull">
+        <div class="row">
           <label>ประเภทงาน</label>
           <select id="job_type">
             <option>Photobooth</option>
@@ -127,154 +120,134 @@
           </select>
         </div>
 
-        <div class="rowFull">
+        <div class="row">
           <label>สถานที่</label>
-          <input id="location" placeholder="เช่น Bangkok / ชื่อสถานที่จัดงาน" />
+          <input id="location" placeholder="เช่น BKK / ชื่อสถานที่ / เขต" />
         </div>
 
-        <div class="rowFull">
+        <div class="row">
           <label>หมายเหตุ</label>
-          <textarea id="notes" placeholder="เช่น จุดจอดรถ / เวลานัด / รายละเอียดเพิ่มเติม"></textarea>
+          <textarea id="notes" placeholder="เช่น ต้องการเริ่มงาน 10:00 ตรง / รายละเอียดหน้างาน"></textarea>
         </div>
       </div>
 
       <div class="terms">
         <input id="agree" type="checkbox" />
-        <div>
-          <div class="t1">ยอมรับเงื่อนไขมัดจำ 2,000 บาท (ไม่สามารถขอคืนได้)</div>
-          <div class="t2">จ่ายหลังแอดมินคอนเฟิร์มเท่านั้น • หากต้องการแบ่งย่อยงาน/ปรับรายละเอียด กด “ติดต่อแอดมิน”</div>
+        <div class="t">
+          ยอมรับเงื่อนไขมัดจำ 2,000 บาท (ไม่สามารถขอคืนได้) และยืนยันว่าหลังแอดมินคอนเฟิร์มแล้วจึงชำระมัดจำ
         </div>
       </div>
 
-      <div class="noteBar" id="statusText"></div>
-
-      <div class="actions">
-        <button class="btnGhost" id="btnAdmin">ติดต่อแอดมิน</button>
-        <button class="btnPrimary" id="btnSubmit" disabled>ส่งคำขอจอง</button>
+      <div class="btnbar">
+        <button class="btn primary" id="btnSubmit">ส่งคำขอจอง</button>
+        <button class="btn ghost" id="btnAdmin">ติดต่อแอดมิน</button>
       </div>
 
-      <div class="alert" id="alert"></div>
-      <div style="height:12px"></div>
+      <div id="msg" class="msg hide"></div>
+      <div class="mini">หากกดส่งแล้วไม่สำเร็จ ให้ลองปิด-เปิด LIFF ใหม่อีกครั้ง หรือเช็กว่าเปิดผ่าน LINE ไม่ใช่ Browser ปกติ</div>
     </div>
   </div>
 
 <script>
-  // ========= CONFIG =========
+  // ====== CONFIG ======
   const LIFF_ID = "2008882886-ubJheqfN";
-  const GAS_BOOKING_URL = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec";
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec";
   const OA_BASIC_ID = "@262clszf";
-  const OA_LINK = "https://line.me/R/ti/p/" + encodeURIComponent(OA_BASIC_ID); // เปิด OA ให้คุยแอดมิน
-  // ==========================
-
-  const el = (id)=>document.getElementById(id);
-  const pill = el("pill");
-  const alertBox = el("alert");
-  const btnSubmit = el("btnSubmit");
-  const btnAdmin = el("btnAdmin");
+  // ====================
 
   let profile = null;
 
-  function setAlert(type, msg){
-    alertBox.className = "alert " + (type || "");
-    alertBox.textContent = msg || "";
-  }
-
-  function canSubmit(){
-    const ok =
-      el("agree").checked &&
-      el("customer_name").value.trim().length >= 2 &&
-      el("phone").value.trim().length >= 8 &&
-      el("event_date").value &&
-      el("location").value.trim().length >= 2;
-    btnSubmit.disabled = !ok;
-  }
-
-  ["agree","customer_name","phone","event_date","time_slot","job_type","location","notes"].forEach(id=>{
-    el(id).addEventListener("input", canSubmit);
-    el(id).addEventListener("change", canSubmit);
-  });
-
-  btnAdmin.onclick = async ()=>{
-    try{
-      if (window.liff && liff.isInClient()){
-        liff.openWindow({ url: OA_LINK, external: true });
-      }else{
-        window.open(OA_LINK, "_blank");
-      }
-    }catch(e){
-      window.open(OA_LINK, "_blank");
-    }
+  const $ = (id) => document.getElementById(id);
+  const setMsg = (text, type) => {
+    const el = $("msg");
+    el.className = "msg " + (type || "");
+    el.textContent = text;
+    el.classList.remove("hide");
   };
 
-  async function init(){
-    try{
-      await liff.init({ liffId: LIFF_ID });
-      if (!liff.isLoggedIn()) liff.login();
-
-      profile = await liff.getProfile();
-      pill.textContent = "เชื่อมต่อแล้ว: " + (profile.displayName || "LINE user");
-      pill.style.color = "#cfe8d5";
-      setAlert("", "");
-
-      // default date = วันนี้
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth()+1).padStart(2,"0");
-      const dd = String(today.getDate()).padStart(2,"0");
-      el("event_date").value = `${yyyy}-${mm}-${dd}`;
-
-      canSubmit();
-    }catch(err){
-      pill.textContent = "เปิดผ่าน LINE เพื่อใช้งาน";
-      pill.style.color = "#ffd1d1";
-      setAlert("bad", "กรุณาเปิดผ่าน LIFF ใน LINE เพื่อใช้งาน (ไม่ควรเปิดจากเบราว์เซอร์ปกติ)");
-    }
+  function todayLocalISO(){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 
-  btnSubmit.onclick = async ()=>{
-    setAlert("", "");
-    btnSubmit.disabled = true;
-    btnSubmit.textContent = "กำลังส่ง…";
+  async function initLIFF(){
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) liff.login();
 
+    profile = await liff.getProfile();
+    $("who").textContent = `สวัสดี ${profile.displayName} 👋`;
+    $("event_date").value = todayLocalISO();
+  }
+
+  $("btnAdmin").onclick = () => {
+    // เปิดแชท OA (ให้ลูกค้าพิมพ์ “ติดต่อแอดมิน”)
+    liff.openWindow({
+      url: `https://line.me/R/oaMessage/${encodeURIComponent(OA_BASIC_ID)}`,
+      external: true
+    });
+  };
+
+  $("btnSubmit").onclick = async () => {
     try{
-      if (!profile) profile = await liff.getProfile();
+      $("btnSubmit").disabled = true;
+      setMsg("กำลังส่งคำขอจอง…", "");
+
+      if (!profile) throw new Error("ยังโหลดข้อมูล LINE ไม่สำเร็จ");
+      const customer_name = $("customer_name").value.trim();
+      const phone = $("phone").value.trim();
+      const event_date = $("event_date").value;
+      const time_slot = $("time_slot").value;
+      const job_type = $("job_type").value;
+      const location = $("location").value.trim();
+      const notes = $("notes").value.trim();
+      const agree = $("agree").checked;
+
+      if (!customer_name) throw new Error("กรุณากรอกชื่อ-นามสกุล");
+      if (!phone) throw new Error("กรุณากรอกเบอร์โทร");
+      if (!event_date) throw new Error("กรุณาเลือกวันที่");
+      if (!agree) throw new Error("กรุณาติ๊กยอมรับเงื่อนไขมัดจำ");
 
       const payload = {
         line_user_id: profile.userId,
         line_display_name: profile.displayName,
-        customer_name: el("customer_name").value.trim(),
-        phone: el("phone").value.trim(),
-        event_date: el("event_date").value, // yyyy-mm-dd
-        time_slot: el("time_slot").value,   // AM/PM
-        job_type: el("job_type").value,
-        location: el("location").value.trim(),
-        notes: el("notes").value.trim()
+        customer_name,
+        phone,
+        event_date,     // YYYY-MM-DD
+        time_slot,      // AM/PM
+        job_type,
+        location,
+        notes
       };
 
-      // กัน CORS/preflight: ใช้ no-cors เพื่อส่งให้ถึงแน่นอน
-      await fetch(GAS_BOOKING_URL, {
+      const res = await fetch(GAS_URL, {
         method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        redirect: "follow"
       });
 
-      setAlert("ok", "ส่งคำขอจองเรียบร้อย ✅ ระบบบันทึกเป็น Pending (รอแอดมินยืนยัน)");
-      btnSubmit.textContent = "ส่งคำขอจอง";
-      canSubmit();
+      const text = await res.text();
+      let data = {};
+      try{ data = JSON.parse(text); } catch(e){ data = { ok:false, message:text }; }
 
-      // ปิดหน้าต่าง LIFF (optional)
-      if (window.liff && liff.isInClient()){
-        setTimeout(()=>{ try{ liff.closeWindow(); }catch(e){} }, 900);
+      if (!data.ok) throw new Error(data.message || "ส่งไม่สำเร็จ");
+      if (data.status === "Rejected") {
+        setMsg("รอบนี้เต็มแล้ว 😥 กรุณาเลือกวัน/รอบใหม่ หรือกดติดต่อแอดมิน", "bad");
+      } else {
+        setMsg(`ส่งคำขอจองแล้ว ✅ (Booking: ${data.booking_id})\nสถานะ: Pending รอแอดมินยืนยัน`, "ok");
       }
+
     }catch(err){
-      setAlert("bad", "ส่งไม่สำเร็จ กรุณาลองใหม่ หรือกด “ติดต่อแอดมิน”");
-      btnSubmit.textContent = "ส่งคำขอจอง";
-      canSubmit();
+      setMsg(String(err.message || err), "bad");
+    }finally{
+      $("btnSubmit").disabled = false;
     }
   };
 
-  init();
+  initLIFF().catch(e => setMsg("เปิดใน LINE เท่านั้น (LIFF) และลองใหม่อีกครั้ง", "bad"));
 </script>
 </body>
 </html>
