@@ -1,169 +1,46 @@
 <!doctype html>
-<html lang="th">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8">
   <title>Fleurarose Booking</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body{font-family:sans-serif;padding:16px;background:#fff}
-    .card{max-width:520px;margin:0 auto}
-    h2{margin:8px 0 12px}
-    label{display:block;font-weight:600;margin:10px 0 6px}
-    input,select,textarea,button{
-      width:100%;box-sizing:border-box;padding:12px;border:1px solid #ddd;border-radius:12px;
-      font-size:16px;background:#fff
-    }
-    textarea{min-height:90px}
-    button.primary{background:#111;color:#fff;border:0}
-    button.secondary{background:#f2f2f2;border:0}
-    .row{display:flex;gap:10px}
-    .row > div{flex:1}
-    .hint{font-size:12px;opacity:.7;margin-top:8px}
-    .error{color:#c00;margin-top:10px;font-weight:600}
-    .ok{color:#0a7;margin-top:10px;font-weight:600}
-    .chk{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
-    .chk input{width:22px;height:22px;margin-top:3px}
-  </style>
 </head>
 <body>
-  <div class="card">
-    <h2>จองคิวถ่ายภาพ</h2>
-
-    <label>ชื่อ-นามสกุล</label>
-    <input id="customer_name" placeholder="กรอกชื่อ-นามสกุล" />
-
-    <label>เบอร์โทร</label>
-    <input id="phone" inputmode="tel" placeholder="กรอกเบอร์โทร" />
-
-    <div class="row">
-      <div>
-        <label>วันที่</label>
-        <input id="event_date" type="date" />
-      </div>
-      <div>
-        <label>รอบ</label>
-        <select id="time_slot">
-          <option value="AM">เช้า 10:00–14:00</option>
-          <option value="PM">เย็น 18:00–22:00</option>
-        </select>
-      </div>
-    </div>
-
-    <label>ประเภทงาน</label>
-    <select id="job_type">
-      <option value="Photobooth">Photobooth</option>
-      <option value="Automate">Automate</option>
-      <option value="Telephone booth สีฟ้าขาว 1">Telephone booth สีฟ้าขาว 1</option>
-      <option value="Telephone booth สีฟ้าขาว 2">Telephone booth สีฟ้าขาว 2</option>
-      <option value="Telephone booth สีน้ำตาล">Telephone booth สีน้ำตาล</option>
-    </select>
-
-    <label>สถานที่</label>
-    <input id="location" placeholder="เช่น Bangkok" />
-
-    <label>หมายเหตุ</label>
-    <textarea id="notes" placeholder="-" ></textarea>
-
-    <div class="chk">
-      <input id="agree" type="checkbox" />
-      <div>
-        <div style="font-weight:700">ยอมรับเงื่อนไขมัดจำ 2,000 บาท (ไม่สามารถขอคืนได้)</div>
-        <div class="hint">หากต้องการแบ่งย่อยงาน/ปรับรายละเอียดเพิ่มเติม โปรดกด “ติดต่อแอดมิน”</div>
-      </div>
-    </div>
-
-    <button class="primary" id="btnSubmit">ส่งคำขอจอง</button>
-    <button class="secondary" id="btnContact" style="margin-top:10px">ติดต่อแอดมิน</button>
-
-    <div id="status"></div>
-  </div>
+  <button id="submit">ส่งคำขอจอง</button>
 
 <script>
-  // ✅ LIFF ของหมิว
-  const LIFF_ID = "2008882886-ubJheqfN";
+const LIFF_ID = "2008882886-ubJheqfN";
+const GAS_URL = "PUT_YOUR_WEBAPP_EXEC_URL_HERE";
 
-  // ✅ Web App /exec ของหมิว
-  const GAS_URL  = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec";
+async function main() {
+  await liff.init({ liffId: LIFF_ID });
+}
 
-  // ✅ OA Basic ID
-  const OA_BASIC_ID = "@262clszf";
+document.getElementById("submit").onclick = async () => {
+  const profile = await liff.getProfile();
 
-  const $ = (id) => document.getElementById(id);
-  const setStatus = (text, ok=false) => {
-    $("status").className = ok ? "ok" : "error";
-    $("status").textContent = text || "";
+  const payload = {
+    line_user_id: profile.userId,
+    line_display_name: profile.displayName,
+    customer_name: "ลูกค้าทดสอบ",
+    phone: "0999999999",
+    event_date: "2026-03-14",
+    time_slot: "AM",
+    job_type: "Photobooth",
+    location: "",
+    notes: ""
   };
 
-  async function init(){
-    await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) { liff.login(); return; }
-  }
-
-  function validate() {
-    if (!$("agree").checked) return "กรุณายอมรับเงื่อนไขมัดจำก่อน";
-    if (!$("customer_name").value.trim()) return "กรุณากรอกชื่อ-นามสกุล";
-    if (!$("phone").value.trim()) return "กรุณากรอกเบอร์โทร";
-    if (!$("event_date").value) return "กรุณาเลือกวันที่";
-    return "";
-  }
-
-  $("btnContact").addEventListener("click", ()=>{
-    // เปิดแชท OA แน่นอน
-    window.location.href = `https://line.me/R/ti/p/${encodeURIComponent(OA_BASIC_ID)}`;
+  await fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
   });
 
-  $("btnSubmit").addEventListener("click", async ()=>{
-    setStatus("");
-    const err = validate();
-    if (err) { setStatus(err); return; }
+  alert("ส่งคำขอจองแล้ว");
+};
 
-    const ctxUserId = liff.getContext()?.userId || "";
-    if (!ctxUserId) { setStatus("ไม่พบ LINE userId (กรุณาเปิดผ่าน LINE)"); return; }
-
-    // ✅ ดึงชื่อ LINE ลูกค้า
-    let displayName = "";
-    try {
-      const profile = await liff.getProfile();
-      displayName = profile?.displayName || "";
-    } catch (e) {}
-
-    const payload = {
-      line_user_id: ctxUserId,
-      line_display_name: displayName, // ✅ เพิ่ม
-      customer_name: $("customer_name").value.trim(),
-      phone: $("phone").value.trim(),
-      event_date: $("event_date").value, // YYYY-MM-DD
-      time_slot: $("time_slot").value,   // AM/PM
-      job_type: $("job_type").value,
-      location: $("location").value.trim(),
-      notes: $("notes").value.trim(),
-    };
-
-    $("btnSubmit").disabled = true;
-    $("btnSubmit").textContent = "กำลังส่ง...";
-
-    try {
-      // ✅ ส่งแบบ text/plain กัน preflight/CORS (ลด Failed to fetch)
-      const res = await fetch(GAS_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-
-      if (!json.ok) setStatus("ส่งไม่สำเร็จ: " + (json.message || "unknown"));
-      else setStatus("ส่งคำขอจองเรียบร้อย ✅ (รอแอดมินยืนยัน)", true);
-
-    } catch (e) {
-      setStatus("ส่งไม่สำเร็จ: Failed to fetch");
-    } finally {
-      $("btnSubmit").disabled = false;
-      $("btnSubmit").textContent = "ส่งคำขอจอง";
-    }
-  });
-
-  init();
+main();
 </script>
 </body>
 </html>
