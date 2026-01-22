@@ -1,29 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Admin Ping</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-</head>
 <body>
-  <h3 id="bid"></h3>
-  <button id="ping">ดันแชทลูกค้า</button>
+<h2>Fleurarose Admin</h2>
+<table border="1" cellpadding="6">
+  <thead>
+    <tr>
+      <th>ID</th><th>ลูกค้า</th><th>งาน</th><th>สถานะ</th><th>💬</th><th>Confirm</th>
+    </tr>
+  </thead>
+  <tbody id="rows"></tbody>
+</table>
 
 <script>
-const LIFF_ID = "2008882886-ubJheqfN";
-const GAS_URL = "PUT_YOUR_WEBAPP_EXEC_URL_HERE";
+google.script.run.withSuccessHandler(data=>{
+  const tb = document.getElementById('rows');
+  data.forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${r.booking_id}</td>
+      <td>${r.customer_name}</td>
+      <td>${r.job_type}</td>
+      <td>${r.status}</td>
+      <td><a href="https://line.me/R/oaMessage/@262clszf/?chat_id=${r.line_user_id}" target="_blank">💬</a></td>
+      <td><button onclick="confirm('${r.booking_id}')">Confirm</button></td>
+    `;
+    tb.appendChild(tr);
+  });
+}).getBookings();
 
-const params = new URLSearchParams(location.search);
-const bookingId = params.get("booking_id");
-
-document.getElementById("bid").innerText = bookingId;
-
-document.getElementById("ping").onclick = async () => {
-  await fetch(`${GAS_URL}?action=ping&booking_id=${bookingId}`);
-  alert("ส่ง ping แล้ว");
-};
-
-liff.init({ liffId: LIFF_ID });
+function confirm(id){
+  google.script.run.confirmBooking(id);
+  alert('Confirmed');
+  location.reload();
+}
 </script>
 </body>
 </html>
