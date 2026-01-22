@@ -1,253 +1,137 @@
 <!doctype html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
   <title>Fleurarose Booking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    :root{
-      --bg:#f6f7fb;
-      --card:#ffffff;
-      --text:#111827;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --primary:#111827;
-      --primary2:#374151;
-      --ok:#16a34a;
-      --bad:#dc2626;
-      --shadow:0 10px 25px rgba(0,0,0,.08);
-      --radius:18px;
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI";
+      background:#f6f7fb;
+      color:#111;
     }
-    body{margin:0;background:var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans Thai",Arial;}
-    .wrap{max-width:720px;margin:0 auto;padding:22px;}
-    .brand{display:flex;align-items:center;gap:12px;margin:8px 0 14px;}
-    .logo{
-      width:42px;height:42px;border-radius:14px;background:#111827;color:#fff;
-      display:grid;place-items:center;font-weight:800;letter-spacing:.5px;
-      box-shadow:var(--shadow);
+    .wrap{max-width:680px;margin:auto;padding:20px}
+    .card{
+      background:#fff;
+      border-radius:18px;
+      padding:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,.08)
     }
-    .brand h1{font-size:22px;margin:0;color:var(--text);}
-    .brand p{margin:2px 0 0;color:var(--muted);font-size:13px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);}
-    .card .hd{padding:16px 16px 6px}
-    .card .hd .sub{color:var(--muted);font-size:13px;margin-top:6px;line-height:1.4}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px 16px}
-    @media (max-width:640px){.grid{grid-template-columns:1fr}}
-    label{font-size:13px;color:var(--muted);display:block;margin:2px 0 6px}
+    h1{margin:0 0 6px}
+    p.sub{color:#666;font-size:14px;margin-top:0}
+    label{display:block;margin-top:14px;font-size:13px;color:#666}
     input,select,textarea{
-      width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;
-      padding:12px 12px;background:#fff;font-size:15px;outline:none;color:var(--text);
+      width:100%;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid #ddd;
+      font-size:15px;
+      box-sizing:border-box;
+      margin-top:6px
     }
-    textarea{min-height:92px;resize:vertical}
-    input:focus,select:focus,textarea:focus{border-color:#9ca3af;box-shadow:0 0 0 4px rgba(17,24,39,.06)}
-    .row{grid-column:1/-1}
-    .pill{
-      display:inline-flex;gap:8px;align-items:center;
-      padding:8px 10px;border-radius:999px;background:#f3f4f6;border:1px solid var(--line);
-      font-size:13px;color:var(--muted)
+    textarea{min-height:90px}
+    button{
+      width:100%;
+      margin-top:20px;
+      padding:14px;
+      border-radius:16px;
+      border:none;
+      font-size:16px;
+      font-weight:700;
+      background:#111;
+      color:#fff;
+      cursor:pointer
     }
-    .btnbar{display:flex;gap:10px;flex-wrap:wrap;padding:0 16px 16px}
-    .btn{
-      border:none;border-radius:16px;padding:13px 16px;font-size:15px;font-weight:700;
-      cursor:pointer;transition:.15s transform,.15s opacity;
-    }
-    .btn:active{transform:scale(.98)}
-    .btn.primary{background:var(--primary);color:#fff;flex:1}
-    .btn.ghost{background:#fff;color:var(--primary);border:1px solid var(--line)}
-    .terms{display:flex;gap:10px;align-items:flex-start;padding:0 16px 12px}
-    .terms input{width:auto;margin-top:4px}
-    .terms .t{font-size:13px;color:var(--muted);line-height:1.45}
-    .msg{padding:0 16px 16px;font-size:14px}
-    .msg.ok{color:var(--ok)}
-    .msg.bad{color:var(--bad)}
-    .mini{font-size:12px;color:var(--muted);padding:0 16px 16px}
-    .hide{display:none}
+    .msg{margin-top:14px;font-size:14px}
+    .ok{color:#15803d}
+    .bad{color:#b91c1c}
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="brand">
-      <div class="logo">FR</div>
-      <div>
-        <h1>Fleurarose Booking</h1>
-        <p id="who">กำลังโหลดข้อมูล LINE…</p>
-      </div>
-    </div>
+<div class="wrap">
+  <div class="card">
+    <h1>Fleurarose Booking</h1>
+    <p class="sub" id="hello">กำลังโหลดข้อมูล LINE…</p>
 
-    <div class="card">
-      <div class="hd">
-        <div class="pill">📌 ชำระ “มัดจำ 2,000 บาท” หลังแอดมินยืนยันเท่านั้น</div>
-        <div class="sub">
-          เลือกวัน/รอบ และประเภทงาน ระบบจะส่งคำขอจองเข้าแอดมินเพื่อยืนยันคิว<br/>
-          หากต้องการ “แบ่งย่อยงาน” ให้กด <b>ติดต่อแอดมิน</b>
-        </div>
-      </div>
+    <label>ชื่อ-นามสกุล</label>
+    <input id="name">
 
-      <div class="grid">
-        <div>
-          <label>ชื่อ-นามสกุล</label>
-          <input id="customer_name" placeholder="เช่น Mew..." />
-        </div>
+    <label>เบอร์โทร</label>
+    <input id="phone">
 
-        <div>
-          <label>เบอร์โทร</label>
-          <input id="phone" inputmode="tel" placeholder="0XXXXXXXXX" />
-        </div>
+    <label>วันที่</label>
+    <input id="date" type="date">
 
-        <div>
-          <label>วันที่</label>
-          <input id="event_date" type="date" />
-        </div>
+    <label>รอบ</label>
+    <select id="slot">
+      <option value="AM">เช้า 10:00–14:00</option>
+      <option value="PM">เย็น 18:00–22:00</option>
+    </select>
 
-        <div>
-          <label>รอบ</label>
-          <select id="time_slot">
-            <option value="AM">เช้า 10:00–14:00</option>
-            <option value="PM">เย็น 18:00–22:00</option>
-          </select>
-        </div>
+    <label>ประเภทงาน</label>
+    <select id="job">
+      <option>Photobooth</option>
+      <option>Automate</option>
+      <option>Telephone booth สีฟ้าขาว 1</option>
+      <option>Telephone booth สีฟ้าขาว 2</option>
+      <option>Telephone booth สีน้ำตาล</option>
+    </select>
 
-        <div class="row">
-          <label>ประเภทงาน</label>
-          <select id="job_type">
-            <option>Photobooth</option>
-            <option>Automate</option>
-            <option>Telephone booth สีฟ้าขาว 1</option>
-            <option>Telephone booth สีฟ้าขาว 2</option>
-            <option>Telephone booth สีน้ำตาล</option>
-          </select>
-        </div>
+    <label>สถานที่</label>
+    <input id="location">
 
-        <div class="row">
-          <label>สถานที่</label>
-          <input id="location" placeholder="เช่น BKK / ชื่อสถานที่ / เขต" />
-        </div>
+    <label>หมายเหตุ</label>
+    <textarea id="notes"></textarea>
 
-        <div class="row">
-          <label>หมายเหตุ</label>
-          <textarea id="notes" placeholder="เช่น ต้องการเริ่มงาน 10:00 ตรง / รายละเอียดหน้างาน"></textarea>
-        </div>
-      </div>
-
-      <div class="terms">
-        <input id="agree" type="checkbox" />
-        <div class="t">
-          ยอมรับเงื่อนไขมัดจำ 2,000 บาท (ไม่สามารถขอคืนได้) และยืนยันว่าหลังแอดมินคอนเฟิร์มแล้วจึงชำระมัดจำ
-        </div>
-      </div>
-
-      <div class="btnbar">
-        <button class="btn primary" id="btnSubmit">ส่งคำขอจอง</button>
-        <button class="btn ghost" id="btnAdmin">ติดต่อแอดมิน</button>
-      </div>
-
-      <div id="msg" class="msg hide"></div>
-      <div class="mini">หากกดส่งแล้วไม่สำเร็จ ให้ลองปิด-เปิด LIFF ใหม่อีกครั้ง หรือเช็กว่าเปิดผ่าน LINE ไม่ใช่ Browser ปกติ</div>
-    </div>
+    <button id="submit">ส่งคำขอจอง</button>
+    <div id="msg" class="msg"></div>
   </div>
+</div>
 
 <script>
-  // ====== CONFIG ======
-  const LIFF_ID = "2008882886-ubJheqfN";
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec";
-  const OA_BASIC_ID = "@262clszf";
-  // ====================
+const LIFF_ID = "2008882886-ubJheqfN";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec";
 
-  let profile = null;
+let profile = null;
 
-  const $ = (id) => document.getElementById(id);
-  const setMsg = (text, type) => {
-    const el = $("msg");
-    el.className = "msg " + (type || "");
-    el.textContent = text;
-    el.classList.remove("hide");
+async function init() {
+  await liff.init({ liffId: LIFF_ID });
+  if (!liff.isLoggedIn()) liff.login();
+  profile = await liff.getProfile();
+  document.getElementById("hello").innerText =
+    "สวัสดี " + profile.displayName;
+}
+
+document.getElementById("submit").onclick = async () => {
+  const payload = {
+    line_user_id: profile.userId,
+    line_display_name: profile.displayName,
+    customer_name: name.value,
+    phone: phone.value,
+    event_date: date.value,
+    time_slot: slot.value,
+    job_type: job.value,
+    location: location.value,
+    notes: notes.value
   };
 
-  function todayLocalISO(){
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const dd = String(d.getDate()).padStart(2,'0');
-    return `${yyyy}-${mm}-${dd}`;
-  }
+  const res = await fetch(GAS_URL, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify(payload)
+  });
 
-  async function initLIFF(){
-    await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) liff.login();
+  const data = await res.json();
+  msg.className = "msg " + (data.ok ? "ok" : "bad");
+  msg.innerText = data.ok
+    ? "ส่งคำขอจองเรียบร้อยแล้ว ✅"
+    : "เกิดข้อผิดพลาด: " + data.message;
+};
 
-    profile = await liff.getProfile();
-    $("who").textContent = `สวัสดี ${profile.displayName} 👋`;
-    $("event_date").value = todayLocalISO();
-  }
-
-  $("btnAdmin").onclick = () => {
-    // เปิดแชท OA (ให้ลูกค้าพิมพ์ “ติดต่อแอดมิน”)
-    liff.openWindow({
-      url: `https://line.me/R/oaMessage/${encodeURIComponent(OA_BASIC_ID)}`,
-      external: true
-    });
-  };
-
-  $("btnSubmit").onclick = async () => {
-    try{
-      $("btnSubmit").disabled = true;
-      setMsg("กำลังส่งคำขอจอง…", "");
-
-      if (!profile) throw new Error("ยังโหลดข้อมูล LINE ไม่สำเร็จ");
-      const customer_name = $("customer_name").value.trim();
-      const phone = $("phone").value.trim();
-      const event_date = $("event_date").value;
-      const time_slot = $("time_slot").value;
-      const job_type = $("job_type").value;
-      const location = $("location").value.trim();
-      const notes = $("notes").value.trim();
-      const agree = $("agree").checked;
-
-      if (!customer_name) throw new Error("กรุณากรอกชื่อ-นามสกุล");
-      if (!phone) throw new Error("กรุณากรอกเบอร์โทร");
-      if (!event_date) throw new Error("กรุณาเลือกวันที่");
-      if (!agree) throw new Error("กรุณาติ๊กยอมรับเงื่อนไขมัดจำ");
-
-      const payload = {
-        line_user_id: profile.userId,
-        line_display_name: profile.displayName,
-        customer_name,
-        phone,
-        event_date,     // YYYY-MM-DD
-        time_slot,      // AM/PM
-        job_type,
-        location,
-        notes
-      };
-
-      const res = await fetch(GAS_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        redirect: "follow"
-      });
-
-      const text = await res.text();
-      let data = {};
-      try{ data = JSON.parse(text); } catch(e){ data = { ok:false, message:text }; }
-
-      if (!data.ok) throw new Error(data.message || "ส่งไม่สำเร็จ");
-      if (data.status === "Rejected") {
-        setMsg("รอบนี้เต็มแล้ว 😥 กรุณาเลือกวัน/รอบใหม่ หรือกดติดต่อแอดมิน", "bad");
-      } else {
-        setMsg(`ส่งคำขอจองแล้ว ✅ (Booking: ${data.booking_id})\nสถานะ: Pending รอแอดมินยืนยัน`, "ok");
-      }
-
-    }catch(err){
-      setMsg(String(err.message || err), "bad");
-    }finally{
-      $("btnSubmit").disabled = false;
-    }
-  };
-
-  initLIFF().catch(e => setMsg("เปิดใน LINE เท่านั้น (LIFF) และลองใหม่อีกครั้ง", "bad"));
+init();
 </script>
 </body>
 </html>
