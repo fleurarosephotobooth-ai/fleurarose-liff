@@ -1,147 +1,167 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fleurarose Booking</title>
+
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
   <style>
-    body{margin:0;background:#f6f7fb;font-family:system-ui}
-    .wrap{max-width:720px;margin:auto;padding:18px}
-    .card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
-    h1{margin:0 0 6px;font-size:22px}
-    .sub{margin:0 0 14px;color:#666;font-size:14px}
-    label{display:block;margin-top:12px;color:#666;font-size:13px}
-    input,select,textarea{width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1px solid #ddd;border-radius:14px;font-size:15px;background:#fff}
-    textarea{min-height:90px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .btn{width:100%;margin-top:14px;padding:14px;border-radius:16px;border:0;font-weight:800;font-size:16px;cursor:pointer}
-    .btnPrimary{background:#111;color:#fff}
-    .btnGhost{background:#f1f3f7;color:#111}
-    .hint{margin-top:10px;font-size:13px;color:#666}
-    .toast{margin-top:10px;font-size:14px}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f6f6f6;
+      padding: 16px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 480px;
+      margin: auto;
+      box-shadow: 0 6px 20px rgba(0,0,0,.08);
+    }
+    h1 { margin-top: 0; }
+    label { display: block; margin-top: 14px; font-weight: 600; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      margin-top: 6px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      margin-top: 18px;
+      font-size: 18px;
+    }
+    .submit {
+      background: #000;
+      color: #fff;
+    }
+    .admin {
+      background: #eee;
+    }
+    .hint {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Fleurarose Booking</h1>
-      <p class="sub" id="hello">กำลังโหลดข้อมูล LINE…</p>
+  <div class="card">
+    <h1>Fleurarose Booking</h1>
+    <div id="hello"></div>
 
-      <div class="row">
-        <div>
-          <label>ชื่อ-นามสกุล</label>
-          <input id="customer_name" placeholder="กรอกชื่อ-นามสกุล" />
-        </div>
-        <div>
-          <label>เบอร์โทร</label>
-          <input id="phone" placeholder="0xx-xxx-xxxx" inputmode="tel" />
-        </div>
-      </div>
+    <label>ชื่อ-นามสกุล</label>
+    <input id="name">
 
-      <div class="row">
-        <div>
-          <label>วันที่</label>
-          <input id="event_date" type="date" />
-        </div>
-        <div>
-          <label>รอบ</label>
-          <select id="time_slot">
-            <option value="AM">เช้า 10:00–14:00</option>
-            <option value="PM">เย็น 18:00–22:00</option>
-          </select>
-        </div>
-      </div>
+    <label>เบอร์โทร</label>
+    <input id="phone">
 
-      <label>ประเภทงาน</label>
-      <select id="job_type">
-        <option>Photobooth</option>
-        <option>Automate</option>
-        <option>Telephone booth สีฟ้าขาว 1</option>
-        <option>Telephone booth สีฟ้าขาว 2</option>
-        <option>Telephone booth สีน้ำตาล</option>
-      </select>
+    <label>วันที่</label>
+    <input id="date" type="date">
 
-      <label>สถานที่</label>
-      <input id="location" placeholder="เช่น โรงแรม / บ้าน / อีเวนต์" />
+    <label>รอบ</label>
+    <select id="slot">
+      <option value="AM">เช้า 10:00–14:00</option>
+      <option value="PM">เย็น 18:00–22:00</option>
+    </select>
 
-      <label>หมายเหตุ</label>
-      <textarea id="notes" placeholder="ถ้ามีรายละเอียดเพิ่มเติม…"></textarea>
+    <label>ประเภทงาน</label>
+    <select id="jobType">
+      <option>Photobooth</option>
+      <option>Automate</option>
+      <option>Telephone booth สีฟ้าขาว 1</option>
+      <option>Telephone booth สีฟ้าขาว 2</option>
+      <option>Telephone booth สีน้ำตาล</option>
+    </select>
 
-      <button class="btn btnPrimary" id="btnSubmit">ส่งคำขอจอง</button>
-      <button class="btn btnGhost" id="btnAdmin">ติดต่อแอดมิน</button>
+    <label>สถานที่</label>
+    <input id="location">
 
-      <div class="toast" id="toast"></div>
-      <div class="hint">* จ่ายมัดจำหลังแอดมินยืนยันเท่านั้น</div>
+    <label>หมายเหตุ</label>
+    <textarea id="notes"></textarea>
+
+    <button class="submit" id="submitBtn" onclick="submitBooking()">
+      ส่งคำขอจอง
+    </button>
+
+    <button class="admin" onclick="openAdmin()">
+      ติดต่อแอดมิน
+    </button>
+
+    <div class="hint">
+      * ชำระมัดจำหลังแอดมินยืนยันเท่านั้น
     </div>
   </div>
 
 <script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbygjJqJFAzwqJLBIfJ3OpFHD8EqZyPdfND0GVkYMsWSLDD6apwCBfiKYpkSSbvJXVRf/exec";
 const LIFF_ID = "2008882886-ubJheqfN";
-const OA_BASIC_ID = "@262clszf";
 
-let profile = null;
+let lineUserId = "";
+let displayName = "";
 
-function setToast(text, ok=true){
-  const el = document.getElementById("toast");
-  el.textContent = text;
-  el.style.color = ok ? "#15803d" : "#b91c1c";
-}
-
-function disable(btn, yes){
-  btn.disabled = yes;
-  btn.style.opacity = yes ? 0.6 : 1;
-}
-
-async function init(){
-  try{
+async function init() {
+  try {
     await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) liff.login();
-
-    profile = await liff.getProfile();
-    document.getElementById("hello").textContent = "สวัสดี " + profile.displayName;
-
-  }catch(e){
-    document.getElementById("hello").textContent = "ไม่สามารถโหลดข้อมูล LINE ได้";
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      lineUserId = profile.userId;
+      displayName = profile.displayName;
+      document.getElementById("hello").innerText = "สวัสดี " + displayName;
+    }
+  } catch (e) {
+    console.log("LIFF not available");
   }
 }
 
-document.getElementById("btnAdmin").addEventListener("click", ()=>{
-  // เปิดแชท OA (ให้ลูกค้าพิมพ์ “ติดต่อแอดมิน”)
-  liff.openWindow({ url: "https://line.me/R/ti/p/" + OA_BASIC_ID, external: true });
-});
+async function submitBooking() {
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+  btn.innerText = "กำลังส่งคำขอจอง...";
 
-document.getElementById("btnSubmit").addEventListener("click", ()=>{
-  const btn = document.getElementById("btnSubmit");
-  disable(btn, true);
-  setToast("กำลังส่งคำขอจอง…", true);
+  try {
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        lineUserId,
+        displayName,
+        customerName: name.value,
+        phone: phone.value,
+        eventDate: date.value,
+        timeSlot: slot.value,
+        jobType: jobType.value,
+        location: location.value,
+        notes: notes.value
+      })
+    });
 
-  const payload = {
-    line_user_id: profile ? profile.userId : "",
-    line_display_name: profile ? profile.displayName : "",
-    customer_name: document.getElementById("customer_name").value.trim(),
-    phone: document.getElementById("phone").value.trim(),
-    event_date: document.getElementById("event_date").value,
-    time_slot: document.getElementById("time_slot").value,
-    job_type: document.getElementById("job_type").value,
-    location: document.getElementById("location").value.trim(),
-    notes: document.getElementById("notes").value.trim()
-  };
+    const json = await res.json();
 
-  google.script.run
-    .withSuccessHandler((res)=>{
-      disable(btn, false);
-      if(res && res.ok){
-        setToast("ส่งคำขอจองเรียบร้อย ✅", true);
-      }else{
-        setToast((res && res.message) ? res.message : "ส่งไม่สำเร็จ", false);
-      }
-    })
-    .withFailureHandler((err)=>{
-      disable(btn, false);
-      setToast("ส่งไม่สำเร็จ: " + (err && err.message ? err.message : err), false);
-    })
-    .submitBooking(payload);
-});
+    if (!json.ok) throw new Error(json.error);
+
+    alert("ส่งคำขอจองเรียบร้อย");
+    btn.innerText = "ส่งแล้ว";
+
+  } catch (err) {
+    alert("ส่งไม่สำเร็จ: " + err.message);
+    btn.disabled = false;
+    btn.innerText = "ส่งคำขอจอง";
+  }
+}
+
+function openAdmin() {
+  window.open("https://line.me/R/ti/p/@262clszf", "_blank");
+}
 
 init();
 </script>
