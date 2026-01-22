@@ -1,104 +1,73 @@
-<!doctype html>
-<html lang="th">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8">
-<title>Fleurarose Booking</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<style>
-body{font-family:sans-serif;background:#f5f5f5;margin:0}
-.wrap{max-width:600px;margin:auto;padding:20px}
-.card{background:#fff;border-radius:16px;padding:20px}
-input,select,textarea,button{
-  width:100%;margin-top:10px;padding:12px;
-  border-radius:10px;border:1px solid #ccc;font-size:16px
-}
-button{background:#111;color:#fff;border:none}
-.msg{margin-top:12px}
-</style>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: sans-serif; padding:16px; }
+    input, select, textarea, button {
+      width:100%; margin:8px 0; padding:12px; font-size:16px;
+    }
+    button { background:#000; color:#fff; border:none; border-radius:10px; }
+    .ghost { background:#eee; color:#000; }
+  </style>
 </head>
-
 <body>
-<div class="wrap">
-  <div class="card">
-    <h2>จองคิว Fleurarose</h2>
-    <div id="hello"></div>
 
-    <input id="name" placeholder="ชื่อ-นามสกุล">
-    <input id="phone" placeholder="เบอร์โทร">
+<h2>Fleurarose Booking</h2>
 
-    <input id="date" type="date">
+<input id="name" placeholder="ชื่อ-นามสกุล">
+<input id="phone" placeholder="เบอร์โทร">
 
-    <select id="slot">
-      <option value="AM">เช้า 10:00–14:00</option>
-      <option value="PM">เย็น 18:00–22:00</option>
-    </select>
+<input type="date" id="date">
 
-    <select id="job">
-      <option>Photobooth</option>
-      <option>Automate</option>
-      <option>Telephone booth สีฟ้าขาว 1</option>
-      <option>Telephone booth สีฟ้าขาว 2</option>
-      <option>Telephone booth สีน้ำตาล</option>
-    </select>
+<select id="slot">
+  <option value="AM">เช้า 10:00–14:00</option>
+  <option value="PM">เย็น 18:00–22:00</option>
+</select>
 
-    <input id="location" placeholder="สถานที่">
-    <textarea id="notes" placeholder="หมายเหตุ"></textarea>
+<select id="job">
+  <option>Photobooth</option>
+  <option>Automate</option>
+  <option>Telephone booth สีฟ้าขาว 1</option>
+  <option>Telephone booth สีฟ้าขาว 2</option>
+  <option>Telephone booth สีน้ำตาล</option>
+</select>
 
-    <button onclick="submitBooking()">ส่งคำขอจอง</button>
-    <button onclick="contactAdmin()">ติดต่อแอดมิน</button>
+<input id="location" placeholder="สถานที่">
+<textarea id="notes" placeholder="หมายเหตุ"></textarea>
 
-    <div class="msg" id="msg"></div>
-  </div>
-</div>
+<button onclick="submitBooking()">ส่งคำขอจอง</button>
+<button class="ghost" onclick="contactAdmin()">💬 ติดต่อแอดมิน</button>
 
 <script>
-const LIFF_ID = "2008882886-ubJheqfN";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxsQpFCHld0vVim-VJcKg58Rf8ZKQevL73_Q3993kkbZiuKOq-IXMM3UR1xO-1i1LSl/exec";
+const LINE_ID = '2008882886-ubJheqfN';
 
-let profile = null;
-
-async function init() {
-  await liff.init({ liffId: LIFF_ID });
-  if (!liff.isLoggedIn()) liff.login();
-  profile = await liff.getProfile();
-  document.getElementById("hello").innerText =
-    "สวัสดี " + profile.displayName;
-}
-
-async function submitBooking() {
-  const payload = {
-    line_user_id: profile.userId,
-    line_display_name: profile.displayName,
-    customer_name: name.value,
-    phone: phone.value,
-    event_date: date.value,
-    time_slot: slot.value,
-    job_type: job.value,
-    location: location.value,
-    notes: notes.value
-  };
-
-  const res = await fetch(GAS_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+function submitBooking() {
+  fetch(location.href, {
+    method:'POST',
+    body:JSON.stringify({
+      line_user_id:'demo',
+      line_display_name:'ลูกค้า',
+      customer_name:name.value,
+      phone:phone.value,
+      event_date:date.value,
+      time_slot:slot.value,
+      job_type:job.value,
+      location:location.value,
+      notes:notes.value
+    })
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.ok) alert('ส่งคำขอจองเรียบร้อย');
+    else alert(d.message);
   });
-
-  const data = await res.json();
-  msg.innerText = data.ok
-    ? "ส่งคำขอจองเรียบร้อยแล้ว ✅"
-    : "เกิดข้อผิดพลาด: " + data.error;
 }
 
 function contactAdmin() {
-  liff.openWindow({
-    url: "https://line.me/R/ti/p/@262clszf",
-    external: true
-  });
+  location.href = 'https://line.me/R/app/' + LINE_ID;
 }
-
-init();
 </script>
+
 </body>
 </html>
