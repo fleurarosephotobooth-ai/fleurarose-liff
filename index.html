@@ -1,167 +1,204 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Fleurarose Booking</title>
-
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f6f6f6;
-      padding: 16px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      max-width: 480px;
-      margin: auto;
-      box-shadow: 0 6px 20px rgba(0,0,0,.08);
-    }
-    h1 { margin-top: 0; }
-    label { display: block; margin-top: 14px; font-weight: 600; }
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ddd;
-      margin-top: 6px;
-      font-size: 16px;
-    }
-    button {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      margin-top: 18px;
-      font-size: 18px;
-    }
-    .submit {
-      background: #000;
-      color: #fff;
-    }
-    .admin {
-      background: #eee;
-    }
-    .hint {
-      font-size: 13px;
-      color: #666;
-      margin-top: 8px;
-    }
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif;background:#f6f7fb}
+    .wrap{max-width:720px;margin:16px auto;padding:14px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,.06);padding:18px}
+    h1{margin:0 0 4px;font-size:24px}
+    .sub{margin:0 0 14px;color:#6b7280;font-size:13px}
+    label{display:block;margin-top:12px;color:#6b7280;font-size:13px}
+    input,select,textarea{width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1px solid #e5e7eb;border-radius:14px;font-size:15px;background:#fff}
+    textarea{min-height:90px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn{width:100%;margin-top:14px;padding:14px;border-radius:16px;border:0;font-weight:800;font-size:16px;cursor:pointer}
+    .primary{background:#111827;color:#fff}
+    .ghost{background:#eef2ff;color:#111827}
+    .hint{margin-top:10px;font-size:12px;color:#6b7280;line-height:1.4}
+    .msg{margin-top:12px;padding:10px 12px;border-radius:14px;font-size:14px;display:none;white-space:pre-line}
+    .ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+    .err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+    @media(max-width:640px){.row{grid-template-columns:1fr}}
   </style>
 </head>
-
 <body>
-  <div class="card">
-    <h1>Fleurarose Booking</h1>
-    <div id="hello"></div>
+  <div class="wrap">
+    <div class="card">
+      <h1>Fleurarose Booking</h1>
+      <p class="sub" id="hello">กำลังโหลด LINE…</p>
 
-    <label>ชื่อ-นามสกุล</label>
-    <input id="name">
+      <div class="row">
+        <div>
+          <label>ชื่อ-นามสกุล</label>
+          <input id="customer_name" placeholder="กรอกชื่อ-นามสกุล" />
+        </div>
+        <div>
+          <label>เบอร์โทร</label>
+          <input id="phone" placeholder="0xx-xxx-xxxx" inputmode="tel" />
+        </div>
+      </div>
 
-    <label>เบอร์โทร</label>
-    <input id="phone">
+      <div class="row">
+        <div>
+          <label>วันที่</label>
+          <input id="event_date" type="date" />
+        </div>
+        <div>
+          <label>รอบ</label>
+          <select id="time_slot">
+            <option value="AM">เช้า 10:00–14:00</option>
+            <option value="PM">เย็น 18:00–22:00</option>
+          </select>
+        </div>
+      </div>
 
-    <label>วันที่</label>
-    <input id="date" type="date">
+      <label>ประเภทงาน</label>
+      <select id="job_type">
+        <option>Photobooth</option>
+        <option>Automate</option>
+        <option>Telephone booth สีฟ้าขาว 1</option>
+        <option>Telephone booth สีฟ้าขาว 2</option>
+        <option>Telephone booth สีน้ำตาล</option>
+      </select>
 
-    <label>รอบ</label>
-    <select id="slot">
-      <option value="AM">เช้า 10:00–14:00</option>
-      <option value="PM">เย็น 18:00–22:00</option>
-    </select>
+      <label>สถานที่</label>
+      <input id="location" placeholder="เช่น โรงแรม / บ้าน / อีเวนต์" />
 
-    <label>ประเภทงาน</label>
-    <select id="jobType">
-      <option>Photobooth</option>
-      <option>Automate</option>
-      <option>Telephone booth สีฟ้าขาว 1</option>
-      <option>Telephone booth สีฟ้าขาว 2</option>
-      <option>Telephone booth สีน้ำตาล</option>
-    </select>
+      <label>หมายเหตุ</label>
+      <textarea id="notes" placeholder="ถ้ามีรายละเอียดเพิ่มเติม…"></textarea>
 
-    <label>สถานที่</label>
-    <input id="location">
+      <button class="btn primary" id="btnSubmit">ส่งคำขอจอง</button>
+      <button class="btn ghost" id="btnAdmin">ติดต่อแอดมิน</button>
 
-    <label>หมายเหตุ</label>
-    <textarea id="notes"></textarea>
+      <div class="msg ok" id="msgOk"></div>
+      <div class="msg err" id="msgErr"></div>
 
-    <button class="submit" id="submitBtn" onclick="submitBooking()">
-      ส่งคำขอจอง
-    </button>
-
-    <button class="admin" onclick="openAdmin()">
-      ติดต่อแอดมิน
-    </button>
-
-    <div class="hint">
-      * ชำระมัดจำหลังแอดมินยืนยันเท่านั้น
+      <div class="hint">
+        * ชำระมัดจำหลังแอดมินยืนยันเท่านั้น<br/>
+        หากต้องการแบ่งย่อยงาน กด “ติดต่อแอดมิน”
+      </div>
     </div>
   </div>
 
 <script>
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxsQpFCHld0vVim-VJcKg58Rf8ZKQevL73_Q3993kkbZiuKOq-IXMM3UR1xO-1i1LSl/exec";
 const LIFF_ID = "2008882886-ubJheqfN";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxsQpFCHld0vVim-VJcKg58Rf8ZKQevL73_Q3993kkbZiuKOq-IXMM3UR1xO-1i1LSl/exec";
+const OA_BASIC_ID = "@262clszf";
 
-let lineUserId = "";
-let displayName = "";
+let profile = { userId:"", displayName:"" };
 
-async function init() {
-  try {
+const $ = (id)=>document.getElementById(id);
+const okBox = $("msgOk");
+const errBox = $("msgErr");
+function showOk(t){ okBox.style.display="block"; errBox.style.display="none"; okBox.textContent=t; }
+function showErr(t){ errBox.style.display="block"; okBox.style.display="none"; errBox.textContent=t; }
+function clearMsg(){ okBox.style.display="none"; errBox.style.display="none"; }
+
+function todayISO(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+async function init(){
+  try{
     await liff.init({ liffId: LIFF_ID });
-    if (liff.isLoggedIn()) {
-      const profile = await liff.getProfile();
-      lineUserId = profile.userId;
-      displayName = profile.displayName;
-      document.getElementById("hello").innerText = "สวัสดี " + displayName;
+
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
     }
-  } catch (e) {
-    console.log("LIFF not available");
+
+    profile = await liff.getProfile();
+    $("hello").textContent = "สวัสดี " + (profile.displayName || "");
+    if (!$("customer_name").value) $("customer_name").value = profile.displayName || "";
+    if (!$("event_date").value) $("event_date").value = todayISO();
+
+  }catch(e){
+    $("hello").textContent = "เปิดใน LINE เพื่อจองได้สะดวกขึ้น";
+    if (!$("event_date").value) $("event_date").value = todayISO();
   }
 }
 
-async function submitBooking() {
-  const btn = document.getElementById("submitBtn");
-  btn.disabled = true;
-  btn.innerText = "กำลังส่งคำขอจอง...";
+function validate(){
+  if (!$("customer_name").value.trim()) return "กรุณากรอกชื่อ";
+  if (!$("phone").value.trim()) return "กรุณากรอกเบอร์โทร";
+  if (!$("event_date").value.trim()) return "กรุณาเลือกวันที่";
+  return "";
+}
 
-  try {
+$("btnAdmin").addEventListener("click", async ()=>{
+  clearMsg();
+  try{
+    if (window.liff && liff.isInClient()) {
+      await liff.sendMessages([{ type:"text", text:"ติดต่อแอดมิน" }]);
+      showOk("ส่งข้อความถึงแอดมินแล้ว ✅");
+    } else {
+      window.open("https://line.me/R/ti/p/" + OA_BASIC_ID, "_blank");
+      showOk("เปิด OA แล้ว ✅ พิมพ์ “ติดต่อแอดมิน” ได้เลย");
+    }
+  }catch(err){
+    showErr("ติดต่อแอดมินไม่สำเร็จ: " + err);
+  }
+});
+
+$("btnSubmit").addEventListener("click", async ()=>{
+  clearMsg();
+  const v = validate();
+  if (v) { showErr(v); return; }
+
+  const btn = $("btnSubmit");
+  btn.disabled = true;
+  btn.textContent = "กำลังส่งคำขอจอง…";
+
+  const payload = {
+    lineUserId: profile.userId,
+    displayName: profile.displayName,
+    customerName: $("customer_name").value.trim(),
+    phone: $("phone").value.trim(),
+    eventDate: $("event_date").value.trim(), // YYYY-MM-DD
+    timeSlot: $("time_slot").value,
+    jobType: $("job_type").value,
+    location: $("location").value.trim(),
+    notes: $("notes").value.trim()
+  };
+
+  // timeout กันค้าง
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), 15000);
+
+  try{
+    // ✅ สำคัญ: ไม่ใส่ headers Content-Type เพื่อเลี่ยง CORS preflight
     const res = await fetch(GAS_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        lineUserId,
-        displayName,
-        customerName: name.value,
-        phone: phone.value,
-        eventDate: date.value,
-        timeSlot: slot.value,
-        jobType: jobType.value,
-        location: location.value,
-        notes: notes.value
-      })
+      body: JSON.stringify(payload),
+      signal: controller.signal
     });
 
-    const json = await res.json();
+    const txt = await res.text();
+    let data;
+    try { data = JSON.parse(txt); } catch { data = { ok:false, error: txt }; }
 
-    if (!json.ok) throw new Error(json.error);
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${txt}`);
+    if (!data.ok) throw new Error(data.error || "ส่งไม่สำเร็จ");
 
-    alert("ส่งคำขอจองเรียบร้อย");
-    btn.innerText = "ส่งแล้ว";
+    showOk(`ส่งคำขอจองเรียบร้อย ✅\nBooking ID: ${data.booking_id || "-"}`);
+    btn.textContent = "ส่งแล้ว ✅";
 
-  } catch (err) {
-    alert("ส่งไม่สำเร็จ: " + err.message);
+  }catch(err){
+    showErr("ส่งไม่สำเร็จ: " + (String(err).includes("AbortError") ? "Timeout 15s (เช็ค Deploy /exec + Anyone)" : err.message || err));
     btn.disabled = false;
-    btn.innerText = "ส่งคำขอจอง";
+    btn.textContent = "ส่งคำขอจอง";
+  }finally{
+    clearTimeout(timer);
   }
-}
-
-function openAdmin() {
-  window.open("https://line.me/R/ti/p/@262clszf", "_blank");
-}
+});
 
 init();
 </script>
