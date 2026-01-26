@@ -22,7 +22,6 @@
     .msg{margin-top:12px;padding:10px 12px;border-radius:14px;font-size:14px;display:none;white-space:pre-line}
     .ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
     .err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
     @media(max-width:640px){.row{grid-template-columns:1fr}}
   </style>
 </head>
@@ -80,21 +79,21 @@
 
       <div class="hint">
         * ชำระมัดจำหลังแอดมินยืนยันเท่านั้น<br/>
-        หากต้องการแบ่งย่อยงาน กด “ติดต่อแอดมิน”
+        หากต้องการแบ่งย่อยงาน กด “💬 ติดต่อแอดมิน”
       </div>
     </div>
   </div>
 
 <script>
 const LIFF_ID = "2008882886-ubJheqfN";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxWvdPqVL7NPkrj3rI9Xv_ocaYfmXqcjWhOHYh3XI7cSuF4-6PXaGcntVK8yt6iml0W/exec";
-const OA_BASIC_ID = "@262clszf";
+const GAS_URL = "PUT_YOUR_GAS_EXEC_URL_HERE"; // <<<< ใส่ลิงก์ /exec ของคุณ
 
 let profile = { userId:"", displayName:"" };
 
 const $ = (id)=>document.getElementById(id);
 const okBox = $("msgOk");
 const errBox = $("msgErr");
+
 function showOk(t){ okBox.style.display="block"; errBox.style.display="none"; okBox.textContent=t; }
 function showErr(t){ errBox.style.display="block"; okBox.style.display="none"; errBox.textContent=t; }
 function clearMsg(){ okBox.style.display="none"; errBox.style.display="none"; }
@@ -107,15 +106,10 @@ function todayISO(){
   return `${yyyy}-${mm}-${dd}`;
 }
 
-function makeBookingId(){
-  return "FR-" + Math.random().toString(16).slice(2,10).toUpperCase();
-}
-
 async function init(){
   try{
     await liff.init({ liffId: LIFF_ID });
     if (!liff.isLoggedIn()) { liff.login(); return; }
-
     profile = await liff.getProfile();
     $("hello").textContent = "สวัสดี " + (profile.displayName || "");
     if (!$("customer_name").value) $("customer_name").value = profile.displayName || "";
@@ -127,43 +121,13 @@ async function init(){
 }
 
 function validate(){
-  if (!profile.userId) return "กรุณาเปิดผ่าน LINE (LIFF) เพื่อยืนยันตัวตน";
   if (!$("customer_name").value.trim()) return "กรุณากรอกชื่อ";
   if (!$("phone").value.trim()) return "กรุณากรอกเบอร์โทร";
   if (!$("event_date").value.trim()) return "กรุณาเลือกวันที่";
   return "";
 }
 
-// JSONP helper (no CORS)
-function jsonp(url){
-  return new Promise((resolve, reject)=>{
-    const cb = "cb_" + Math.random().toString(36).slice(2);
-    const s = document.createElement("script");
-    const timer = setTimeout(()=>{
-      cleanup();
-      reject(new Error("JSONP timeout"));
-    }, 12000);
-
-    function cleanup(){
-      clearTimeout(timer);
-      delete window[cb];
-      s.remove();
-    }
-
-    window[cb] = (data)=>{
-      cleanup();
-      resolve(data);
-    };
-
-    s.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
-    s.onerror = ()=>{
-      cleanup();
-      reject(new Error("JSONP load error"));
-    };
-    document.body.appendChild(s);
-  });
-}
-
+// 💬 ติดต่อแอดมิน (ส่งข้อความเข้า OA อัตโนมัติ)
 $("btnAdmin").addEventListener("click", async ()=>{
   clearMsg();
   try{
@@ -171,8 +135,7 @@ $("btnAdmin").addEventListener("click", async ()=>{
       await liff.sendMessages([{ type:"text", text:"ติดต่อแอดมิน" }]);
       showOk("ส่งข้อความถึงแอดมินแล้ว ✅");
     } else {
-      window.open("https://line.me/R/ti/p/" + OA_BASIC_ID, "_blank");
-      showOk("เปิด OA แล้ว ✅ พิมพ์ “ติดต่อแอดมิน” ได้เลย");
+      showErr("กรุณาเปิดผ่าน LINE (LIFF) เพื่อส่งข้อความหาแอดมินอัตโนมัติ");
     }
   }catch(err){
     showErr("ติดต่อแอดมินไม่สำเร็จ: " + (err.message || err));
@@ -188,50 +151,45 @@ $("btnSubmit").addEventListener("click", async ()=>{
   btn.disabled = true;
   btn.textContent = "กำลังส่งคำขอจอง…";
 
-  const booking_id = makeBookingId();
-
-  // ส่ง key แบบ snake_case ให้ตรง Code.gs ชัวร์
   const payload = {
-    booking_id,
-    line_user_id: profile.userId,
-    line_display_name: profile.displayName,
-    customer_name: $("customer_name").value.trim(),
+    lineUserId: profile.userId,
+    displayName: profile.displayName,
+    customerName: $("customer_name").value.trim(),
     phone: $("phone").value.trim(),
-    event_date: $("event_date").value.trim(),
-    time_slot: $("time_slot").value,
-    job_type: $("job_type").value,
+    eventDate: $("event_date").value.trim(),
+    timeSlot: $("time_slot").value,
+    jobType: $("job_type").value,
     location: $("location").value.trim(),
     notes: $("notes").value.trim()
   };
 
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), 15000);
+
   try{
-    // 1) ส่งออกด้วย Beacon (อ่าน response ไม่ได้ แต่ส่งออกได้ชัวร์)
-    const blob = new Blob([JSON.stringify(payload)], { type: "text/plain;charset=utf-8" });
-    const sent = navigator.sendBeacon(GAS_URL, blob);
+    const res = await fetch(GAS_URL, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
 
-    if (!sent) {
-      // fallback
-      await fetch(GAS_URL, { method:"POST", mode:"no-cors", body: JSON.stringify(payload) });
-    }
+    const txt = await res.text();
+    let data;
+    try { data = JSON.parse(txt); } catch { data = { ok:false, error: txt }; }
 
-    // 2) verify ด้วย JSONP ว่าเข้า Sheet จริงไหม (ไม่ติด CORS)
-    btn.textContent = "กำลังยืนยันรายการ…";
-    const checkUrl = GAS_URL + "?action=check&booking_id=" + encodeURIComponent(booking_id);
-    const result = await jsonp(checkUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${txt}`);
+    if (!data.ok) throw new Error(data.error || "ส่งไม่สำเร็จ");
 
-    if (result && result.ok) {
-      showOk(`ส่งคำขอจองเรียบร้อย ✅\nBooking ID: ${booking_id}\nสถานะ: ${result.status || "Pending"}\nทีม: ${result.team || "-"}`);
-      btn.textContent = "ส่งแล้ว ✅";
-    } else {
-      showErr(`ส่งออกแล้ว แต่ยังไม่พบในระบบ\nBooking ID: ${booking_id}\n(ให้ลองกดส่งอีกครั้ง หรือเช็ค Deploy /exec + Anyone)`);
-      btn.disabled = false;
-      btn.textContent = "ส่งคำขอจอง";
-    }
+    showOk(`ส่งคำขอจองเรียบร้อย ✅\nBooking ID: ${data.booking_id || "-"}`);
+    btn.textContent = "ส่งแล้ว ✅";
 
   }catch(err){
-    showErr("ส่งไม่สำเร็จ: " + (err.message || err));
+    const msg = String(err).includes("AbortError") ? "Timeout 15s (เช็ค Deploy Web app + Anyone)" : (err.message || err);
+    showErr("ส่งไม่สำเร็จ: " + msg);
     btn.disabled = false;
     btn.textContent = "ส่งคำขอจอง";
+  }finally{
+    clearTimeout(timer);
   }
 });
 
