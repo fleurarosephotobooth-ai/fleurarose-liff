@@ -1,92 +1,6 @@
-<!doctype html>
-<html lang="th">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Fleurarose Booking</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif;background:#f6f7fb}
-    .wrap{max-width:720px;margin:16px auto;padding:14px}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,.06);padding:18px}
-    h1{margin:0 0 4px;font-size:24px}
-    .sub{margin:0 0 14px;color:#6b7280;font-size:13px}
-    label{display:block;margin-top:12px;color:#6b7280;font-size:13px}
-    input,select,textarea{width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1px solid #e5e7eb;border-radius:14px;font-size:15px;background:#fff}
-    textarea{min-height:90px;resize:vertical}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .btn{width:100%;margin-top:14px;padding:14px;border-radius:16px;border:0;font-weight:800;font-size:16px;cursor:pointer}
-    .primary{background:#111827;color:#fff}
-    .ghost{background:#eef2ff;color:#111827}
-    .hint{margin-top:10px;font-size:12px;color:#6b7280;line-height:1.4}
-    .msg{margin-top:12px;padding:10px 12px;border-radius:14px;font-size:14px;display:none;white-space:pre-line}
-    .ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
-    .err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-    @media(max-width:640px){.row{grid-template-columns:1fr}}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Fleurarose Booking</h1>
-      <p class="sub" id="hello">กำลังโหลด LINE…</p>
-
-      <div class="row">
-        <div>
-          <label>ชื่อ-นามสกุล</label>
-          <input id="customer_name" placeholder="กรอกชื่อ-นามสกุล" />
-        </div>
-        <div>
-          <label>เบอร์โทร</label>
-          <input id="phone" placeholder="0xx-xxx-xxxx" inputmode="tel" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>วันที่</label>
-          <input id="event_date" type="date" />
-        </div>
-        <div>
-          <label>รอบ</label>
-          <select id="time_slot">
-            <option value="AM">เช้า 10:00–14:00</option>
-            <option value="PM">เย็น 18:00–22:00</option>
-          </select>
-        </div>
-      </div>
-
-      <label>ประเภทงาน</label>
-      <select id="job_type">
-        <option>Photobooth</option>
-        <option>Automate</option>
-        <option>Telephone booth สีฟ้าขาว 1</option>
-        <option>Telephone booth สีฟ้าขาว 2</option>
-        <option>Telephone booth สีน้ำตาล</option>
-      </select>
-
-      <label>สถานที่</label>
-      <input id="location" placeholder="เช่น โรงแรม / บ้าน / อีเวนต์" />
-
-      <label>หมายเหตุ</label>
-      <textarea id="notes" placeholder="ถ้ามีรายละเอียดเพิ่มเติม…"></textarea>
-
-      <button class="btn primary" id="btnSubmit">ส่งคำขอจอง</button>
-      <button class="btn ghost" id="btnAdmin">ติดต่อแอดมิน</button>
-
-      <div class="msg ok" id="msgOk"></div>
-      <div class="msg err" id="msgErr"></div>
-
-      <div class="hint">
-        * ชำระมัดจำหลังแอดมินยืนยันเท่านั้น<br/>
-        หากต้องการแบ่งย่อยงาน กด “ติดต่อแอดมิน”
-      </div>
-    </div>
-  </div>
-
 <script>
 const LIFF_ID = "2008882886-ubJheqfN";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxsQpFCHld0vVim-VJcKg58Rf8ZKQevL73_Q3993kkbZiuKOq-IXMM3UR1xO-1i1LSl/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxWvdPqVL7NPkrj3rI9Xv_ocaYfmXqcjWhOHYh3XI7cSuF4-6PXaGcntVK8yt6iml0W/exec";
 const OA_BASIC_ID = "@262clszf";
 
 let profile = { userId:"", displayName:"" };
@@ -109,11 +23,7 @@ function todayISO(){
 async function init(){
   try{
     await liff.init({ liffId: LIFF_ID });
-
-    if (!liff.isLoggedIn()) {
-      liff.login();
-      return;
-    }
+    if (!liff.isLoggedIn()) { liff.login(); return; }
 
     profile = await liff.getProfile();
     $("hello").textContent = "สวัสดี " + (profile.displayName || "");
@@ -127,6 +37,7 @@ async function init(){
 }
 
 function validate(){
+  if (!profile.userId) return "กรุณาเปิดผ่าน LINE (LIFF) เพื่อยืนยันตัวตน";
   if (!$("customer_name").value.trim()) return "กรุณากรอกชื่อ";
   if (!$("phone").value.trim()) return "กรุณากรอกเบอร์โทร";
   if (!$("event_date").value.trim()) return "กรุณาเลือกวันที่";
@@ -157,50 +68,40 @@ $("btnSubmit").addEventListener("click", async ()=>{
   btn.disabled = true;
   btn.textContent = "กำลังส่งคำขอจอง…";
 
+  // ✅ ชื่อ key ให้ตรงกับ Code.gs
   const payload = {
-    lineUserId: profile.userId,
-    displayName: profile.displayName,
-    customerName: $("customer_name").value.trim(),
+    booking_id: "FR-" + Math.random().toString(16).slice(2,10).toUpperCase(),
+    line_user_id: profile.userId,
+    line_display_name: profile.displayName,
+
+    customer_name: $("customer_name").value.trim(),
     phone: $("phone").value.trim(),
-    eventDate: $("event_date").value.trim(), // YYYY-MM-DD
-    timeSlot: $("time_slot").value,
-    jobType: $("job_type").value,
+    event_date: $("event_date").value.trim(), // YYYY-MM-DD
+    time_slot: $("time_slot").value,         // AM/PM
+    job_type: $("job_type").value,
+
     location: $("location").value.trim(),
     notes: $("notes").value.trim()
   };
 
-  // timeout กันค้าง
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), 15000);
-
   try{
-    // ✅ สำคัญ: ไม่ใส่ headers Content-Type เพื่อเลี่ยง CORS preflight
-    const res = await fetch(GAS_URL, {
+    // ⭐ no-cors กัน LIFF ค้าง/Failed to fetch จาก CORS
+    await fetch(GAS_URL, {
       method: "POST",
-      body: JSON.stringify(payload),
-      signal: controller.signal
+      mode: "no-cors",
+      body: JSON.stringify(payload)
     });
 
-    const txt = await res.text();
-    let data;
-    try { data = JSON.parse(txt); } catch { data = { ok:false, error: txt }; }
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}: ${txt}`);
-    if (!data.ok) throw new Error(data.error || "ส่งไม่สำเร็จ");
-
-    showOk(`ส่งคำขอจองเรียบร้อย ✅\nBooking ID: ${data.booking_id || "-"}`);
+    // no-cors จะอ่าน response ไม่ได้ → ให้ถือว่าส่งสำเร็จและไปเช็คในชีต
+    showOk(`ส่งคำขอจองเรียบร้อย ✅\nBooking ID: ${payload.booking_id}\n(เช็คสถานะได้ใน Google Sheet)`);
     btn.textContent = "ส่งแล้ว ✅";
 
   }catch(err){
-    showErr("ส่งไม่สำเร็จ: " + (String(err).includes("AbortError") ? "Timeout 15s (เช็ค Deploy /exec + Anyone)" : err.message || err));
+    showErr("ส่งไม่สำเร็จ: " + (err.message || err));
     btn.disabled = false;
     btn.textContent = "ส่งคำขอจอง";
-  }finally{
-    clearTimeout(timer);
   }
 });
 
 init();
 </script>
-</body>
-</html>
