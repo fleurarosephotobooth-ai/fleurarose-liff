@@ -1,294 +1,66 @@
 <!doctype html>
-<html lang="th">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Fleurarose Booking</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    :root{
-      --bg:#f6f7fb; --card:#fff; --text:#0f172a; --muted:#64748b;
-      --line:#e2e8f0; --primary:#0b1220; --primary2:#111827;
-      --okbg:#ecfdf5; --ok:#065f46; --okbd:#a7f3d0;
-      --erbg:#fef2f2; --er:#991b1b; --erbd:#fecaca;
-      --shadow:0 16px 40px rgba(2,6,23,.10);
-      --r:20px;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--text)}
-    .wrap{max-width:820px;margin:18px auto;padding:14px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
-    .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    h1{margin:0;font-size:22px;letter-spacing:.2px}
-    .badge{font-size:12px;color:#0ea5e9;background:#e0f2fe;border:1px solid #bae6fd;padding:6px 10px;border-radius:999px}
-    .sub{margin:8px 0 14px;color:var(--muted);font-size:13px;line-height:1.5}
-    label{display:block;margin-top:12px;color:var(--muted);font-size:13px}
-    input,select,textarea{
-      width:100%;margin-top:6px;padding:12px 12px;border:1px solid var(--line);
-      border-radius:16px;font-size:15px;background:#fff;outline:none;
-    }
-    input:focus,select:focus,textarea:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.25)}
-    textarea{min-height:92px;resize:vertical}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .btn{
-      width:100%;margin-top:14px;padding:14px 14px;border-radius:18px;border:0;
-      font-weight:800;font-size:16px;cursor:pointer;transition:.15s transform, .15s opacity;
-    }
-    .btn:active{transform:scale(.99)}
-    .primary{background:linear-gradient(180deg,var(--primary2),var(--primary));color:#fff}
-    .ghost{background:#eef2ff;color:#111827;border:1px solid #e0e7ff}
-    .btn[disabled]{opacity:.55;cursor:not-allowed}
-    .hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.5}
-    .msg{
-      margin-top:12px;padding:11px 12px;border-radius:16px;font-size:14px;display:none;white-space:pre-line
-    }
-    .ok{background:var(--okbg);color:var(--ok);border:1px solid var(--okbd)}
-    .err{background:var(--erbg);color:var(--er);border:1px solid var(--erbd)}
-    .mini{font-size:12px;color:var(--muted);margin-top:8px}
-    .req{color:#ef4444;font-weight:700}
-    @media(max-width:720px){.grid{grid-template-columns:1fr}}
-  </style>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<style>
+body{font-family:sans-serif;background:#f6f7fb}
+.card{background:#fff;margin:16px;padding:16px;border-radius:16px}
+input,select,textarea,button{width:100%;margin-top:8px;padding:12px}
+button{background:#111;color:#fff;border-radius:12px}
+</style>
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="top">
-        <h1>Fleurarose Booking</h1>
-        <div class="badge" id="envBadge">LIFF</div>
-      </div>
+<div class="card">
+<h2>Fleurarose Booking</h2>
 
-      <p class="sub" id="hello">กำลังโหลด LINE…</p>
+<input id="name" placeholder="ชื่อ">
+<input id="phone" placeholder="เบอร์">
+<input id="date" type="date">
 
-      <div class="grid">
-        <div>
-          <label>ชื่อ-นามสกุล <span class="req">*</span></label>
-          <input id="customer_name" placeholder="กรอกชื่อ-นามสกุล" autocomplete="name" />
-        </div>
-        <div>
-          <label>เบอร์โทร <span class="req">*</span></label>
-          <input id="phone" placeholder="0xx-xxx-xxxx" inputmode="tel" autocomplete="tel" />
-        </div>
-      </div>
+<select id="slot">
+  <option value="AM">เช้า</option>
+  <option value="PM">เย็น</option>
+</select>
 
-      <div class="grid">
-        <div>
-          <label>วันที่ <span class="req">*</span></label>
-          <input id="event_date" type="date" />
-        </div>
-        <div>
-          <label>รอบ <span class="req">*</span></label>
-          <select id="time_slot">
-            <option value="AM">เช้า 10:00–14:00</option>
-            <option value="PM">เย็น 18:00–22:00</option>
-          </select>
-        </div>
-      </div>
+<select id="job">
+  <option>Photobooth</option>
+  <option>Automate</option>
+  <option>Telephone booth สีฟ้าขาว 1</option>
+  <option>Telephone booth สีฟ้าขาว 2</option>
+  <option>Telephone booth สีน้ำตาล</option>
+</select>
 
-      <label>ประเภทงาน <span class="req">*</span></label>
-      <select id="job_type">
-        <option value="Photobooth">Photobooth</option>
-        <option value="Automate">Automate</option>
-        <option value="Telephone booth สีฟ้าขาว 1">Telephone booth สีฟ้าขาว 1</option>
-        <option value="Telephone booth สีฟ้าขาว 2">Telephone booth สีฟ้าขาว 2</option>
-        <option value="Telephone booth สีน้ำตาล">Telephone booth สีน้ำตาล</option>
-      </select>
+<input id="loc" placeholder="สถานที่">
+<textarea id="note"></textarea>
 
-      <label>สถานที่</label>
-      <input id="location" placeholder="เช่น โรงแรม / บ้าน / อีเวนต์" />
-
-      <label>หมายเหตุ</label>
-      <textarea id="notes" placeholder="ถ้ามีรายละเอียดเพิ่มเติม…"></textarea>
-
-      <button class="btn primary" id="btnSubmit">ส่งคำขอจอง</button>
-      <button class="btn ghost" id="btnAdmin">💬 ติดต่อแอดมิน</button>
-
-      <div class="msg ok" id="msgOk"></div>
-      <div class="msg err" id="msgErr"></div>
-      <div class="mini" id="miniInfo"></div>
-
-      <div class="hint">
-        * ชำระมัดจำหลังแอดมินยืนยันเท่านั้น<br/>
-        หากต้องการแบ่งย่อยงาน กด “💬 ติดต่อแอดมิน”
-      </div>
-    </div>
-  </div>
+<button onclick="submit()">ส่งคำขอจอง</button>
+<div id="msg"></div>
+</div>
 
 <script>
-/** ✅ แก้ 2 ค่านี้ให้ตรงของหมิว */
-const LIFF_ID = "2008882886-ubJheqfN";
-const GAS_URL  = "https://script.google.com/macros/s/AKfycbxWvdPqVL7NPkrj3rI9Xv_ocaYfmXqcjWhOHYh3XI7cSuF4-6PXaGcntVK8yt6iml0W/exec";
+let profile={};
 
-/** OA Basic ID ของหมิว */
-const OA_BASIC_ID = "@262clszf";
+liff.init({ liffId:"2008882886-ubJheqfN" }).then(()=>{
+  if(!liff.isLoggedIn()) return liff.login();
+  return liff.getProfile();
+}).then(p=>profile=p);
 
-let profile = { userId:"", displayName:"" };
-
-const $ = (id)=>document.getElementById(id);
-const okBox = $("msgOk");
-const errBox = $("msgErr");
-const mini = $("miniInfo");
-
-function showOk(t){ okBox.style.display="block"; errBox.style.display="none"; okBox.textContent=t; }
-function showErr(t){ errBox.style.display="block"; okBox.style.display="none"; errBox.textContent=t; }
-function clearMsg(){ okBox.style.display="none"; errBox.style.display="none"; okBox.textContent=""; errBox.textContent=""; }
-function todayISO(){
-  const d = new Date();
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth()+1).padStart(2,"0");
-  const dd = String(d.getDate()).padStart(2,"0");
-  return `${yyyy}-${mm}-${dd}`;
+function submit(){
+  google.script.run.withSuccessHandler(r=>{
+    msg.textContent="จองสำเร็จ ✅ "+r.booking_id;
+  }).submitBooking({
+    lineUserId: profile.userId,
+    displayName: profile.displayName,
+    customerName: name.value,
+    phone: phone.value,
+    eventDate: date.value,
+    timeSlot: slot.value,
+    jobType: job.value,
+    location: loc.value,
+    notes: note.value
+  });
 }
-
-function validate(){
-  const name = $("customer_name").value.trim();
-  const phone = $("phone").value.trim();
-  const date = $("event_date").value.trim();
-  const slot = $("time_slot").value;
-  const jt = $("job_type").value;
-
-  if (!name) return "กรุณากรอกชื่อ-นามสกุล";
-  if (!phone) return "กรุณากรอกเบอร์โทร";
-  if (!date) return "กรุณาเลือกวันที่";
-  if (!slot) return "กรุณาเลือกรอบ";
-  if (!jt) return "กรุณาเลือกประเภทงาน";
-  return "";
-}
-
-/**
- * ✅ ส่งคำขอจองแบบ “ปลอด preflight”:
- * - ส่งเป็น text/plain + JSON string
- * - server (GAS) parse ได้จาก postData.contents
- */
-async function postBooking(payload){
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), 20000);
-
-  try{
-    const res = await fetch(GAS_URL, {
-      method: "POST",
-      // สำคัญ: text/plain ช่วยลดปัญหา preflight/CORS หลายเคสบน iOS/LIFF
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-
-    // บางสภาพแวดล้อมจะอ่าน response ได้ไม่เสถียร → เราพยายามอ่านก่อน
-    const text = await res.text();
-    let data = null;
-    try { data = JSON.parse(text); } catch { data = { ok:false, raw:text }; }
-
-    return { httpOk: res.ok, data, raw:text };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-/** ปุ่มติดต่อแอดมิน: เปิด OA พร้อมข้อความ (ไม่ต้อง scope) */
-function openAdminChat(){
-  const text = encodeURIComponent("ติดต่อแอดมิน");
-  const url = `https://line.me/R/oaMessage/${OA_BASIC_ID}/?${text}`;
-  if (window.liff && liff.isInClient && liff.isInClient()){
-    liff.openWindow({ url, external: true });
-  } else {
-    window.open(url, "_blank");
-  }
-}
-
-$("btnAdmin").addEventListener("click", ()=>{
-  clearMsg();
-  openAdminChat();
-  showOk("เปิดแชทติดต่อแอดมินแล้ว ✅");
-});
-
-/** Init LIFF */
-async function init(){
-  $("event_date").value = todayISO();
-
-  try{
-    await liff.init({ liffId: LIFF_ID });
-
-    const inClient = liff.isInClient();
-    $("envBadge").textContent = inClient ? "LIFF (in LINE)" : "LIFF (external)";
-    mini.textContent = inClient ? "เปิดใน LINE แล้ว ✅" : "แนะนำเปิดใน LINE เพื่อความเสถียร";
-
-    if (!liff.isLoggedIn()){
-      liff.login();
-      return;
-    }
-
-    profile = await liff.getProfile();
-    $("hello").textContent = "สวัสดี " + (profile.displayName || "");
-    if (!$("customer_name").value) $("customer_name").value = profile.displayName || "";
-
-  }catch(e){
-    $("envBadge").textContent = "Web";
-    $("hello").textContent = "เปิดใน LINE เพื่อจองได้สะดวกขึ้น";
-    mini.textContent = "โหมดเว็บ: ยังส่งได้ แต่แนะนำเปิดใน LINE";
-  }
-}
-
-$("btnSubmit").addEventListener("click", async ()=>{
-  clearMsg();
-
-  const v = validate();
-  if (v) { showErr(v); return; }
-
-  const btn = $("btnSubmit");
-  btn.disabled = true;
-  btn.textContent = "กำลังส่งคำขอจอง…";
-
-  const payload = {
-    lineUserId: profile.userId || "",
-    displayName: profile.displayName || "",
-    customerName: $("customer_name").value.trim(),
-    phone: $("phone").value.trim(),
-    eventDate: $("event_date").value.trim(),   // yyyy-mm-dd
-    timeSlot: $("time_slot").value,            // AM/PM
-    jobType: $("job_type").value,
-    location: $("location").value.trim(),
-    notes: $("notes").value.trim(),
-    client: {
-      ua: navigator.userAgent,
-      ts: new Date().toISOString()
-    }
-  };
-
-  try{
-    const { httpOk, data, raw } = await postBooking(payload);
-
-    // ✅ เคสปกติ (GAS คืน JSON)
-    if (httpOk && data && data.ok){
-      const bid = data.booking_id || "-";
-      const team = data.team_assigned ? `\nทีม: ${data.team_assigned}` : "";
-      showOk(`ส่งคำขอจองเรียบร้อย ✅\nBooking ID: ${bid}${team}\nสถานะ: ${data.status || "Pending"}`);
-      btn.textContent = "ส่งแล้ว ✅";
-      return;
-    }
-
-    // ⚠️ บางครั้ง iOS/LIFF อ่าน response แล้ว parse ไม่ได้ แต่ฝั่ง GAS เขียนชีตไปแล้ว
-    // ให้ถือว่า “ส่งแล้ว” และให้ผู้ใช้เช็คในชีต/ติดต่อแอดมิน
-    const maybeBid = (raw || "").match(/FR-[A-Z0-9]{6,}/)?.[0] || "ไม่ทราบ";
-    showErr(
-      `ส่งออกแล้ว แต่ยังไม่ยืนยันผลจากระบบ\n` +
-      `Booking ID (ถ้ามี): ${maybeBid}\n` +
-      `แนะนำ: รอ 5–10 วิ แล้วเช็คใน Google Sheet หรือกด “💬 ติดต่อแอดมิน”`
-    );
-    btn.disabled = false;
-    btn.textContent = "ส่งคำขอจอง";
-
-  }catch(err){
-    const msg = String(err?.name) === "AbortError"
-      ? "Timeout 20s — เช็ค Deploy เป็น /exec และตั้งค่า Anyone"
-      : (err?.message || String(err));
-
-    showErr("ส่งไม่สำเร็จ: " + msg);
-    btn.disabled = false;
-    btn.textContent = "ส่งคำขอจอง";
-  }
-});
-
-init();
 </script>
 </body>
 </html>
