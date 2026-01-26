@@ -1,192 +1,23 @@
 <!doctype html>
-<html lang="th">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Fleurarose Admin</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif;background:#f6f7fb}
-    .wrap{max-width:980px;margin:16px auto;padding:14px}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,.06);padding:14px}
-    h1{margin:0 0 8px;font-size:20px}
-    .sub{margin:0 0 10px;color:#6b7280;font-size:13px}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid #eef2f7;font-size:13px;vertical-align:top}
-    th{color:#6b7280;text-align:left;font-weight:700}
-    .btn{border:0;border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer}
-    .ok{background:#111827;color:#fff}
-    .ghost{background:#eef2ff;color:#111827}
-    .row{display:flex;gap:8px;flex-wrap:wrap}
-    .pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#f1f5f9;font-size:12px}
-    .msg{margin-top:10px;padding:10px;border-radius:12px;display:none;white-space:pre-line}
-    .good{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
-    .bad{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-  </style>
-</head>
+<html>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Fleurarose Admin</h1>
-      <p class="sub" id="hello">กำลังโหลด…</p>
-
-      <div class="row" style="margin:10px 0">
-        <button class="btn ghost" id="btnRefresh">⟳ โหลด Pending</button>
-      </div>
-
-      <div class="msg good" id="msgOk"></div>
-      <div class="msg bad" id="msgErr"></div>
-
-      <div style="overflow:auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Booking</th>
-              <th>ลูกค้า</th>
-              <th>งาน</th>
-              <th>วัน/รอบ</th>
-              <th>ทีม</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-
-      <p class="sub" style="margin-top:10px">
-        💬 Ping = ส่งข้อความถึงลูกค้า เพื่อดันแชทขึ้นบนสุดใน OA<br/>
-        ✅ Confirm = เปลี่ยนเป็น Confirmed + สร้าง Calendar + ส่งขอมัดจำออโต้
-      </p>
-    </div>
-  </div>
+<h2>Admin</h2>
+<table border="1" id="t"></table>
 
 <script>
-const LIFF_ID = "2008882886-ubJheqfN";          // ใช้ตัวเดียวกับหน้าจองได้
-const GAS_URL = "PUT_YOUR_GAS_EXEC_URL_HERE";   // ใส่ลิงก์ /exec ล่าสุดของคุณ
+google.script.run.withSuccessHandler(rows=>{
+  t.innerHTML="<tr>"+Object.keys(rows[0]).map(h=>"<th>"+h+"</th>").join("")+"<th>Action</th></tr>";
+  rows.forEach(r=>{
+    t.innerHTML+=`<tr>
+      ${Object.values(r).map(v=>"<td>"+v+"</td>").join("")}
+      <td><button onclick="cf('${r.booking_id}')">Confirm</button></td>
+    </tr>`;
+  });
+}).getBookings();
 
-let adminProfile = { userId:"", displayName:"" };
-const $ = (id)=>document.getElementById(id);
-const okBox = $("msgOk");
-const errBox = $("msgErr");
-function showOk(t){ okBox.style.display="block"; errBox.style.display="none"; okBox.textContent=t; }
-function showErr(t){ errBox.style.display="block"; okBox.style.display="none"; errBox.textContent=t; }
-function clearMsg(){ okBox.style.display="none"; errBox.style.display="none"; }
-
-async function init(){
-  try{
-    await liff.init({ liffId: LIFF_ID });
-    if (!liff.isLoggedIn()) { liff.login(); return; }
-    adminProfile = await liff.getProfile();
-    $("hello").textContent = "สวัสดีแอดมิน " + (adminProfile.displayName || "");
-    await loadPending();
-  }catch(e){
-    $("hello").textContent = "กรุณาเปิดผ่าน LINE (LIFF) เพื่อใช้หน้าแอดมิน";
-  }
+function cf(id){
+  google.script.run.withSuccessHandler(()=>alert("Confirmed")).confirmBooking(id);
 }
-
-async function loadPending(){
-  clearMsg();
-  $("tbody").innerHTML = "<tr><td colspan='6'>กำลังโหลด…</td></tr>";
-  try{
-    const url = GAS_URL + "?action=listPending";
-    const res = await fetch(url, { method:"GET" });
-    const txt = await res.text();
-    const data = JSON.parse(txt);
-
-    if (!data.ok) throw new Error(data.error || "โหลดไม่สำเร็จ");
-    const rows = data.rows || [];
-    if (!rows.length){
-      $("tbody").innerHTML = "<tr><td colspan='6'>ไม่มี Pending 🎉</td></tr>";
-      return;
-    }
-
-    $("tbody").innerHTML = rows.map(r => `
-      <tr>
-        <td>
-          <div><b>${escapeHtml(r.booking_id)}</b></div>
-          <div class="pill">${escapeHtml(r.line_display_name || "-")}</div>
-        </td>
-        <td>
-          <div>${escapeHtml(r.customer_name)}</div>
-          <div>${escapeHtml(r.phone)}</div>
-        </td>
-        <td>
-          <div><b>${escapeHtml(r.job_type)}</b></div>
-          <div>${escapeHtml(r.location || "-")}</div>
-          <div style="color:#6b7280">${escapeHtml(r.notes || "")}</div>
-        </td>
-        <td>
-          <div>${escapeHtml(r.event_date)}</div>
-          <div class="pill">${escapeHtml(r.time_slot)}</div>
-        </td>
-        <td><b>${escapeHtml(r.team_assigned || "-")}</b></td>
-        <td>
-          <div class="row">
-            <button class="btn ghost" onclick="ping('${escapeAttr(r.booking_id)}')">💬 Ping</button>
-            <button class="btn ok" onclick="confirmBooking('${escapeAttr(r.booking_id)}')">✅ Confirm</button>
-          </div>
-        </td>
-      </tr>
-    `).join("");
-
-  }catch(err){
-    showErr("โหลด Pending ไม่สำเร็จ: " + (err.message || err));
-    $("tbody").innerHTML = "<tr><td colspan='6'>โหลดไม่สำเร็จ</td></tr>";
-  }
-}
-
-async function ping(bookingId){
-  clearMsg();
-  try{
-    const res = await fetch(GAS_URL, {
-      method:"POST",
-      body: JSON.stringify({
-        action:"ping",
-        booking_id: bookingId,
-        admin_line_user_id: adminProfile.userId
-      })
-    });
-    const data = JSON.parse(await res.text());
-    if (!data.ok) throw new Error(data.error || "Ping ไม่สำเร็จ");
-    showOk("Ping เรียบร้อย ✅");
-  }catch(err){
-    showErr("Ping ไม่สำเร็จ: " + (err.message || err));
-  }
-}
-
-async function confirmBooking(bookingId){
-  clearMsg();
-  if (!confirm("ยืนยันงานนี้? ระบบจะสร้าง Calendar และส่งขอมัดจำอัตโนมัติ")) return;
-
-  try{
-    const res = await fetch(GAS_URL, {
-      method:"POST",
-      body: JSON.stringify({
-        action:"confirm",
-        booking_id: bookingId,
-        admin_line_user_id: adminProfile.userId
-      })
-    });
-
-    const data = JSON.parse(await res.text());
-    if (!data.ok) {
-      if (data.error === "slot_full") throw new Error("รอบนี้เต็มแล้ว (capacity เต็ม)");
-      throw new Error(data.error || "Confirm ไม่สำเร็จ");
-    }
-
-    showOk("Confirm + Calendar + ขอชำระมัดจำ เรียบร้อย ✅");
-    await loadPending();
-  }catch(err){
-    showErr("Confirm ไม่สำเร็จ: " + (err.message || err));
-  }
-}
-
-$("btnRefresh").addEventListener("click", loadPending);
-
-function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function escapeAttr(s){ return String(s||"").replace(/'/g,"&#39;"); }
-
-init();
 </script>
 </body>
 </html>
