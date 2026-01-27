@@ -87,9 +87,8 @@
 </div>
 
 <script>
-/** ====== CONFIG: แก้ 3 ค่าให้ตรงของหมิว ====== */
 const LIFF_ID = "2008882886-ubJheqfN";
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxWvdPqVL7NPkrj3rI9Xv_ocaYfmXqcjWhOHYh3XI7cSuF4-6PXaGcntVK8yt6iml0W/exec"; // เช่น https://script.google.com/macros/s/XXXX/exec
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxWvdPqVL7NPkrj3rI9Xv_ocaYfmXqcjWhOHYh3XI7cSuF4-6PXaGcntVK8yt6iml0W/exec"; // <-- ใส่ลิงก์ /exec ของ Apps Script
 const OA_BASIC_ID = "@262clszf";
 
 let profile = { userId:"", displayName:"" };
@@ -99,6 +98,18 @@ const okBox=$("ok"), errBox=$("err");
 function showOk(t){ okBox.style.display="block"; errBox.style.display="none"; okBox.textContent=t; }
 function showErr(t){ errBox.style.display="block"; okBox.style.display="none"; errBox.textContent=t; }
 function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+
+async function postAPI(body){
+  const res = await fetch(GAS_URL, {
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body: JSON.stringify(body),
+  });
+  const txt = await res.text();
+  let data; try{ data = JSON.parse(txt);}catch{ data={ok:false,error:txt}; }
+  if(!res.ok) throw new Error(`HTTP ${res.status}: ${txt}`);
+  return data;
+}
 
 async function init(){
   $("eventDate").value = todayISO();
@@ -113,28 +124,14 @@ async function init(){
   }
 }
 
-function openAdmin(){
-  // เปิด OA พร้อมข้อความ (ชัวร์กว่า sendMessages ถ้าเปิดจากลิงก์ตรง)
+function openAdminContact(){
   const text = encodeURIComponent("ติดต่อแอดมิน");
   const url = `https://line.me/R/oaMessage/${OA_BASIC_ID}/?${text}`;
   if(window.liff && liff.isInClient()) liff.openWindow({ url, external:true });
   else window.open(url, "_blank");
 }
 
-async function postAPI(body){
-  // ใช้ text/plain เพื่อลด preflight
-  const res = await fetch(GAS_URL, {
-    method:"POST",
-    headers:{ "Content-Type":"text/plain;charset=utf-8" },
-    body: JSON.stringify(body),
-  });
-  const txt = await res.text();
-  let data; try{ data = JSON.parse(txt);}catch{ data={ok:false,error:txt}; }
-  if(!res.ok) throw new Error(`HTTP ${res.status}: ${txt}`);
-  return data;
-}
-
-$("btnAdmin").addEventListener("click", ()=> openAdmin());
+$("btnAdmin").addEventListener("click", openAdminContact);
 
 $("btnSubmit").addEventListener("click", async ()=>{
   okBox.style.display="none"; errBox.style.display="none";
@@ -171,7 +168,7 @@ $("btnSubmit").addEventListener("click", async ()=>{
       return;
     }
 
-    showOk(`ส่งคำขอจองสำเร็จ ✅\nBooking ID: ${data.booking_id}\nทีมที่จัดให้: ${data.team_assigned || "-"}`);
+    showOk(`ส่งคำขอจองสำเร็จ ✅\nBooking ID: ${data.booking_id}\nทีม: ${data.team_assigned || "-"}`);
     btn.textContent = "ส่งแล้ว ✅";
 
   }catch(e){
