@@ -1,66 +1,187 @@
 <!doctype html>
-<html>
+<html lang="th">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<style>
-body{font-family:sans-serif;background:#f6f7fb}
-.card{background:#fff;margin:16px;padding:16px;border-radius:16px}
-input,select,textarea,button{width:100%;margin-top:8px;padding:12px}
-button{background:#111;color:#fff;border-radius:12px}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Fleurarose Booking</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--line:#e5e7eb;--text:#0f172a;--muted:#64748b;--shadow:0 16px 40px rgba(2,6,23,.10);--r:20px}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:780px;margin:18px auto;padding:14px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
+    h1{margin:0;font-size:22px}
+    .sub{margin:6px 0 14px;color:var(--muted);font-size:13px;line-height:1.5}
+    label{display:block;margin-top:12px;color:var(--muted);font-size:13px}
+    input,select,textarea{width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:16px;font-size:15px;outline:none}
+    input:focus,select:focus,textarea:focus{border-color:#94a3b8;box-shadow:0 0 0 3px rgba(148,163,184,.25)}
+    textarea{min-height:90px;resize:vertical}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .btn{width:100%;margin-top:14px;padding:14px;border-radius:18px;border:0;font-weight:800;font-size:16px;cursor:pointer}
+    .primary{background:#111827;color:#fff}
+    .ghost{background:#eef2ff;color:#111827;border:1px solid #e0e7ff}
+    .msg{margin-top:12px;padding:10px 12px;border-radius:16px;font-size:14px;display:none;white-space:pre-line}
+    .ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+    .err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.5}
+    @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
-<div class="card">
-<h2>Fleurarose Booking</h2>
+<div class="wrap">
+  <div class="card">
+    <h1>Fleurarose Booking</h1>
+    <div class="sub" id="hello">กำลังโหลด LINE…</div>
 
-<input id="name" placeholder="ชื่อ">
-<input id="phone" placeholder="เบอร์">
-<input id="date" type="date">
+    <div class="grid">
+      <div>
+        <label>ชื่อ-นามสกุล *</label>
+        <input id="customerName" placeholder="กรอกชื่อ-นามสกุล">
+      </div>
+      <div>
+        <label>เบอร์โทร *</label>
+        <input id="phone" placeholder="0xx-xxx-xxxx" inputmode="tel">
+      </div>
+    </div>
 
-<select id="slot">
-  <option value="AM">เช้า</option>
-  <option value="PM">เย็น</option>
-</select>
+    <div class="grid">
+      <div>
+        <label>วันที่ *</label>
+        <input id="eventDate" type="date">
+      </div>
+      <div>
+        <label>รอบ *</label>
+        <select id="timeSlot">
+          <option value="AM">เช้า 10:00–14:00</option>
+          <option value="PM">เย็น 18:00–22:00</option>
+        </select>
+      </div>
+    </div>
 
-<select id="job">
-  <option>Photobooth</option>
-  <option>Automate</option>
-  <option>Telephone booth สีฟ้าขาว 1</option>
-  <option>Telephone booth สีฟ้าขาว 2</option>
-  <option>Telephone booth สีน้ำตาล</option>
-</select>
+    <label>ประเภทงาน *</label>
+    <select id="jobType">
+      <option>Photobooth</option>
+      <option>Automate</option>
+      <option>Telephone booth สีฟ้าขาว 1</option>
+      <option>Telephone booth สีฟ้าขาว 2</option>
+      <option>Telephone booth สีน้ำตาล</option>
+    </select>
 
-<input id="loc" placeholder="สถานที่">
-<textarea id="note"></textarea>
+    <label>สถานที่</label>
+    <input id="location" placeholder="เช่น โรงแรม / บ้าน / อีเวนต์">
 
-<button onclick="submit()">ส่งคำขอจอง</button>
-<div id="msg"></div>
+    <label>หมายเหตุ</label>
+    <textarea id="notes" placeholder="ถ้ามีรายละเอียดเพิ่มเติม…"></textarea>
+
+    <button class="btn primary" id="btnSubmit">ส่งคำขอจอง</button>
+    <button class="btn ghost" id="btnAdmin">💬 ติดต่อแอดมิน</button>
+
+    <div class="msg ok" id="ok"></div>
+    <div class="msg err" id="err"></div>
+
+    <div class="hint">
+      * ชำระมัดจำหลังแอดมินยืนยันเท่านั้น<br>
+      หากต้องการแบ่งย่อยงาน กด “💬 ติดต่อแอดมิน”
+    </div>
+  </div>
 </div>
 
 <script>
-let profile={};
+/** ====== CONFIG: แก้ 3 ค่าให้ตรงของหมิว ====== */
+const LIFF_ID = "2008882886-ubJheqfN";
+const GAS_URL = "PUT_YOUR_GAS_EXEC_URL_HERE"; // เช่น https://script.google.com/macros/s/XXXX/exec
+const OA_BASIC_ID = "@262clszf";
 
-liff.init({ liffId:"2008882886-ubJheqfN" }).then(()=>{
-  if(!liff.isLoggedIn()) return liff.login();
-  return liff.getProfile();
-}).then(p=>profile=p);
+let profile = { userId:"", displayName:"" };
+const $ = (id)=>document.getElementById(id);
+const okBox=$("ok"), errBox=$("err");
 
-function submit(){
-  google.script.run.withSuccessHandler(r=>{
-    msg.textContent="จองสำเร็จ ✅ "+r.booking_id;
-  }).submitBooking({
-    lineUserId: profile.userId,
-    displayName: profile.displayName,
-    customerName: name.value,
-    phone: phone.value,
-    eventDate: date.value,
-    timeSlot: slot.value,
-    jobType: job.value,
-    location: loc.value,
-    notes: note.value
-  });
+function showOk(t){ okBox.style.display="block"; errBox.style.display="none"; okBox.textContent=t; }
+function showErr(t){ errBox.style.display="block"; okBox.style.display="none"; errBox.textContent=t; }
+function todayISO(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+
+async function init(){
+  $("eventDate").value = todayISO();
+  try{
+    await liff.init({ liffId: LIFF_ID });
+    if(!liff.isLoggedIn()){ liff.login(); return; }
+    profile = await liff.getProfile();
+    $("hello").textContent = `สวัสดี ${profile.displayName || ""}`;
+    if(!$("customerName").value) $("customerName").value = profile.displayName || "";
+  }catch(e){
+    $("hello").textContent = "แนะนำเปิดผ่าน LINE เพื่อใช้งานได้สมบูรณ์";
+  }
 }
+
+function openAdmin(){
+  // เปิด OA พร้อมข้อความ (ชัวร์กว่า sendMessages ถ้าเปิดจากลิงก์ตรง)
+  const text = encodeURIComponent("ติดต่อแอดมิน");
+  const url = `https://line.me/R/oaMessage/${OA_BASIC_ID}/?${text}`;
+  if(window.liff && liff.isInClient()) liff.openWindow({ url, external:true });
+  else window.open(url, "_blank");
+}
+
+async function postAPI(body){
+  // ใช้ text/plain เพื่อลด preflight
+  const res = await fetch(GAS_URL, {
+    method:"POST",
+    headers:{ "Content-Type":"text/plain;charset=utf-8" },
+    body: JSON.stringify(body),
+  });
+  const txt = await res.text();
+  let data; try{ data = JSON.parse(txt);}catch{ data={ok:false,error:txt}; }
+  if(!res.ok) throw new Error(`HTTP ${res.status}: ${txt}`);
+  return data;
+}
+
+$("btnAdmin").addEventListener("click", ()=> openAdmin());
+
+$("btnSubmit").addEventListener("click", async ()=>{
+  okBox.style.display="none"; errBox.style.display="none";
+
+  const customerName = $("customerName").value.trim();
+  const phone = $("phone").value.trim();
+  const eventDate = $("eventDate").value.trim();
+  if(!customerName) return showErr("กรุณากรอกชื่อ-นามสกุล");
+  if(!phone) return showErr("กรุณากรอกเบอร์โทร");
+  if(!eventDate) return showErr("กรุณาเลือกวันที่");
+
+  const btn = $("btnSubmit");
+  btn.disabled = true;
+  btn.textContent = "กำลังส่งคำขอจอง…";
+
+  try{
+    const data = await postAPI({
+      action:"submit",
+      lineUserId: profile.userId || "",
+      displayName: profile.displayName || "",
+      customerName,
+      phone,
+      eventDate,
+      timeSlot: $("timeSlot").value,
+      jobType: $("jobType").value,
+      location: $("location").value.trim(),
+      notes: $("notes").value.trim()
+    });
+
+    if(!data.ok) throw new Error(data.error || "ส่งไม่สำเร็จ");
+    if(data.status === "Rejected"){
+      showErr(`รอบนี้เต็มแล้ว ❌\nBooking ID: ${data.booking_id}`);
+      btn.disabled = false; btn.textContent="ส่งคำขอจอง";
+      return;
+    }
+
+    showOk(`ส่งคำขอจองสำเร็จ ✅\nBooking ID: ${data.booking_id}\nทีมที่จัดให้: ${data.team_assigned || "-"}`);
+    btn.textContent = "ส่งแล้ว ✅";
+
+  }catch(e){
+    showErr("ส่งไม่สำเร็จ: " + (e.message || e));
+    btn.disabled = false;
+    btn.textContent = "ส่งคำขอจอง";
+  }
+});
+
+init();
 </script>
 </body>
 </html>
