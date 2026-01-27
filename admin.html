@@ -58,9 +58,7 @@
 </div>
 
 <script>
-/** ====== CONFIG: แก้ให้ตรงของหมิว ====== */
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxWvdPqVL7NPkrj3rI9Xv_ocaYfmXqcjWhOHYh3XI7cSuF4-6PXaGcntVK8yt6iml0W/exec";
-
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxWvdPqVL7NPkrj3rI9Xv_ocaYfmXqcjWhOHYh3XI7cSuF4-6PXaGcntVK8yt6iml0W/exec"; // <-- ใส่ลิงก์ /exec ของ Apps Script
 let filter = "Pending";
 const $=(id)=>document.getElementById(id);
 
@@ -85,7 +83,7 @@ function rowHTML(r){
       <td><div class="mono">${r.booking_id}</div><div style="color:#64748b">${r.event_date} • ${r.time_slot}</div></td>
       <td><b>${r.line_display_name || r.customer_name || "-"}</b><div style="color:#64748b">${r.phone || "-"}</div></td>
       <td><b>${r.job_type}</b><div style="color:#64748b">ทีม: ${r.team_assigned || "-"}</div></td>
-      <td>${r.status || "-" }<div style="color:#64748b">Calendar: ${r.calendar_event_id ? "✅" : "-"}</div></td>
+      <td>${r.status || "-"}<div style="color:#64748b">Calendar: ${r.calendar_event_id ? "✅" : "-"}</div></td>
       <td>
         <div class="actions">
           <button class="btn primary small" onclick="confirmIt('${r.booking_id}')">✅ Confirm → Calendar</button>
