@@ -152,45 +152,37 @@
       <textarea id="notes" placeholder="เช่น ขอไฟนีออนสีชมพู / ส่งไฟล์โลโก้ล่วงหน้า"></textarea>
 
       <button class="btn primary" id="btnSubmit">บันทึก + สร้าง Calendar</button>
-      <button class="btn ghost" id="btnAdmin">💬 ติดต่อแอดมิน (ส่งข้อความเข้า OA)</button>
+      <button class="btn ghost" id="btnAdmin">💬 ติดต่อแอดมิน (เปิด OA)</button>
 
       <div class="msg ok" id="msgOk"></div>
       <div class="msg err" id="msgErr"></div>
 
       <div class="hint">
         - ระบบจะบันทึกลง Sheet และสร้าง Calendar “เฉพาะเวลางานจริง”<br/>
-        - Set up = เพื่อบันทึกข้อมูลในรายละเอียดงาน (ไม่สร้างอีเวนต์แยก)<br/>
         - ถ้าแนบรูปแล้วส่งไม่ผ่าน ให้ลดขนาดรูป (แคปหน้าจอใหม่)
       </div>
     </div>
   </div>
 
 <script>
-  // ✅ ใส่ของหมิว
   const LIFF_ID = "2008882886-ubJheqfN";
+  // ✅ ใช้ /exec อันนี้ของหมิว (ตามที่ส่งมา)
   const GAS_URL = "https://script.google.com/macros/s/AKfycbzrnTE0rFsVUEhCefTItywFcI_hjpLFPV2C6nGFDaEU_CPDxq5XywG6BBRdzwzt3Edk/exec";
-
-  // OA Contact (ถ้าอยากเปิด OA แทนส่งข้อความในแอป)
   const OA_BASIC_ID = "@262clszf";
 
   const $ = (id)=>document.getElementById(id);
   const okBox = $("msgOk");
   const errBox = $("msgErr");
-
   function showOk(t){ okBox.style.display="block"; errBox.style.display="none"; okBox.textContent=t; }
   function showErr(t){ errBox.style.display="block"; okBox.style.display="none"; errBox.textContent=t; }
   function clearMsg(){ okBox.style.display="none"; errBox.style.display="none"; }
 
   function todayISO(){
     const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    return `${yyyy}-${mm}-${dd}`;
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   }
 
   function genBookingId(){
-    // client-side id เพื่อแสดงทันที (server ก็จะใช้ id นี้)
     const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
     let s = "FR-";
     for (let i=0;i<8;i++) s += chars[Math.floor(Math.random()*chars.length)];
@@ -199,12 +191,10 @@
 
   async function init(){
     $("event_date").value = $("event_date").value || todayISO();
-    $("deposit_date").value = $("deposit_date").value || "";
 
     try{
       await liff.init({ liffId: LIFF_ID });
       if (!liff.isLoggedIn()) { liff.login(); return; }
-
       const p = await liff.getProfile();
       $("hello").textContent = `พร้อมใช้งาน ✅ (${p.displayName || "LINE"})`;
     }catch(e){
@@ -213,7 +203,7 @@
   }
 
   function validate(){
-    const required = [
+    const req = [
       ["customer_name","กรุณากรอกชื่อลูกค้า"],
       ["line_name","กรุณากรอกชื่อไลน์ลูกค้า"],
       ["event_date","กรุณาเลือกวันที่"],
@@ -222,7 +212,7 @@
       ["contact","กรุณากรอกผู้ประสานงาน/เบอร์"],
       ["price","กรุณากรอกราคา"],
     ];
-    for (const [id,msg] of required){
+    for (const [id,msg] of req){
       if (!$(id).value || !$(id).value.trim()) return msg;
     }
     if (Number($("price").value) <= 0) return "ราคาต้องมากกว่า 0";
@@ -231,50 +221,38 @@
 
   function readFileAsBase64(file){
     return new Promise((resolve,reject)=>{
-      const reader = new FileReader();
-      reader.onload = ()=> {
-        const dataUrl = String(reader.result || "");
-        const idx = dataUrl.indexOf("base64,");
-        if (idx < 0) return resolve(null);
-        const b64 = dataUrl.slice(idx + 7);
-        resolve(b64);
+      const r = new FileReader();
+      r.onload = ()=> {
+        const dataUrl = String(r.result||"");
+        const i = dataUrl.indexOf("base64,");
+        resolve(i>=0 ? dataUrl.slice(i+7) : null);
       };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+      r.onerror = reject;
+      r.readAsDataURL(file);
     });
   }
 
-  $("slip_file").addEventListener("change", async ()=>{
+  $("slip_file").addEventListener("change", ()=>{
     clearMsg();
     const f = $("slip_file").files && $("slip_file").files[0];
-    if (!f){
-      $("preview").style.display = "none";
-      return;
-    }
-
-    $("preview").style.display = "flex";
+    if (!f){ $("preview").style.display="none"; return; }
+    $("preview").style.display="flex";
     $("fileInfo").textContent = `${f.name} (${Math.round(f.size/1024)} KB)`;
     $("previewImg").src = URL.createObjectURL(f);
-
-    // แนะนำขนาด
-    if (f.size > 800*1024){
-      showErr("รูปสลิปใหญ่เกิน 800KB แนะนำแคปหน้าจอใหม่ให้เล็กลง เพื่อส่งได้เสถียร");
-    }
+    if (f.size > 800*1024) showErr("รูปสลิปใหญ่เกิน 800KB แนะนำแคปหน้าจอใหม่ให้เล็กลง");
   });
 
   $("btnAdmin").addEventListener("click", async ()=>{
     clearMsg();
     try{
-      // ถ้า LIFF ไม่มี permission sendMessages จะขึ้น scope error → fallback เปิด OA
+      // เปิด OA แบบชัวร์ (ไม่พึ่ง scope sendMessages)
       if (window.liff && liff.isInClient()){
-        await liff.sendMessages([{ type:"text", text:"ติดต่อแอดมิน" }]);
-        showOk("ส่งข้อความเข้า OA แล้ว ✅");
-      }else{
+        liff.openWindow({ url: "https://line.me/R/ti/p/" + OA_BASIC_ID, external: true });
+      } else {
         window.open("https://line.me/R/ti/p/" + OA_BASIC_ID, "_blank");
-        showOk("เปิด OA แล้ว ✅");
       }
+      showOk("เปิด OA แล้ว ✅");
     }catch(e){
-      // fallback ทันที
       window.open("https://line.me/R/ti/p/" + OA_BASIC_ID, "_blank");
       showOk("เปิด OA แล้ว ✅");
     }
@@ -283,7 +261,7 @@
   $("btnSubmit").addEventListener("click", async ()=>{
     clearMsg();
     const v = validate();
-    if (v) { showErr(v); return; }
+    if (v){ showErr(v); return; }
 
     const btn = $("btnSubmit");
     btn.disabled = true;
@@ -309,8 +287,8 @@
       booking_id: bookingId,
       customer_name: $("customer_name").value.trim(),
       line_name: $("line_name").value.trim(),
-      event_date: $("event_date").value.trim(),      // YYYY-MM-DD
-      event_time: $("event_time").value.trim(),      // "10:00-14:00"
+      event_date: $("event_date").value.trim(),
+      event_time: $("event_time").value.trim(),
       setup_hours: Number($("setup_hours").value || 2),
       location: $("location").value.trim(),
       room_floor: $("room_floor").value.trim(),
@@ -326,16 +304,19 @@
     };
 
     try{
-      // ✅ sendBeacon: ไม่ติด CORS + ไม่ต้องอ่าน response
-      const url = GAS_URL + "?action=create";
-      const ok = navigator.sendBeacon(url, new Blob([JSON.stringify(payload)], {type:"text/plain;charset=utf-8"}));
+      // ✅ สำคัญ: ใช้ fetch no-cors + keepalive (แก้ iOS/LIFF load failed)
+      await fetch(GAS_URL + "?action=create", {
+        method: "POST",
+        mode: "no-cors",
+        keepalive: true,
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
 
-      if (!ok) throw new Error("Load failed");
-
+      // no-cors อ่านผลไม่ได้ → ถือว่าส่งออกแล้ว ให้หมิวเช็คใน Sheet/Calendar
       showOk(
-        `ส่งคำขอเรียบร้อย ✅\n`+
-        `Booking ID: ${bookingId}\n`+
-        `ระบบจะบันทึกเข้า Sheet และสร้าง Calendar อัตโนมัติ`
+        `ส่งคำขอแล้ว ✅\nBooking ID: ${bookingId}\n`+
+        `ถ้าไม่เห็นใน Sheet ภายใน 10 วินาที ให้ลองกดส่งใหม่`
       );
       btn.textContent = "ส่งแล้ว ✅";
 
