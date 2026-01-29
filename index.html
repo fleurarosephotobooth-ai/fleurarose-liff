@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Fleurarose Admin Booking Form</title>
+  <title>Fleurarose Admin Booking</title>
   <style>
     :root{
       --bg:#f6f7fb; --card:#fff; --line:#e5e7eb; --muted:#6b7280; --text:#111827;
@@ -11,35 +11,36 @@
       --radius:18px;
     }
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--text)}
-    .wrap{max-width:860px;margin:18px auto;padding:14px}
+    .wrap{max-width:920px;margin:18px auto;padding:14px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 10px 25px rgba(0,0,0,.06);padding:18px}
     h1{margin:0 0 4px;font-size:24px}
-    .sub{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.4}
+    .sub{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.45}
     label{display:block;margin-top:12px;color:var(--muted);font-size:13px}
     input,select,textarea{width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:14px;font-size:15px;background:#fff}
-    textarea{min-height:90px;resize:vertical}
+    textarea{min-height:92px;resize:vertical}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
     .btn{width:100%;margin-top:14px;padding:14px;border-radius:16px;border:0;font-weight:800;font-size:16px;cursor:pointer}
     .primary{background:var(--primary);color:#fff}
     .ghost{background:var(--soft);color:var(--text)}
-    .hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.5}
+    .hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.55}
     .msg{margin-top:12px;padding:10px 12px;border-radius:14px;font-size:14px;display:none;white-space:pre-line}
     .ok{background:var(--okbg);color:var(--ok);border:1px solid #a7f3d0}
     .err{background:var(--errbg);color:var(--err);border:1px solid #fecaca}
     .preview{margin-top:8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .thumb{width:74px;height:74px;border-radius:14px;border:1px solid var(--line);object-fit:cover;background:#fff}
+    .thumb{width:76px;height:76px;border-radius:14px;border:1px solid var(--line);object-fit:cover;background:#fff}
     .pill{font-size:12px;color:var(--muted);background:#f3f4f6;border:1px solid var(--line);padding:6px 10px;border-radius:999px}
-    @media(max-width:720px){.row,.row3{grid-template-columns:1fr}}
+    .mini{font-size:12px;color:var(--muted);margin-top:6px}
+    @media(max-width:760px){.row,.row3{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>Fleurarose Booking (Admin Form)</h1>
+      <h1>Fleurarose Booking (Admin)</h1>
       <p class="sub">
-        กรอกฟอร์ม → บันทึกเข้า Google Sheet → สร้าง Calendar อัตโนมัติทันที ✅<br/>
-        (ไม่มี LINE userId / ไม่มีการส่งข้อความลูกค้า)
+        หมิวกรอกฟอร์มเอง → เข้า Google Sheet → สร้าง Google Calendar ทันที ✅<br/>
+        * ไม่มี LINE userId / ใช้ “ชื่อไลน์ลูกค้า” แทน
       </p>
 
       <label>ชื่อลูกค้า *</label>
@@ -47,8 +48,8 @@
 
       <div class="row">
         <div>
-          <label>ชื่อไลน์ลูกค้า (Line Display Name) *</label>
-          <input id="line_name" placeholder="เช่น MOREMEW" />
+          <label>ชื่อไลน์ลูกค้า *</label>
+          <input id="line_name" placeholder="เช่น moremew" />
         </div>
         <div>
           <label>ผู้ประสานงาน/เบอร์ติดต่อ *</label>
@@ -63,13 +64,14 @@
         </div>
         <div>
           <label>เวลา (ช่วงงาน) *</label>
-          <input id="event_time" placeholder="เช่น 10:00–14:00" />
+          <input id="event_time" placeholder="เช่น 10:00–14:00 (หรือ 10:00-14:00)" />
+          <div class="mini">รองรับทั้งขีด – และ -</div>
         </div>
       </div>
 
       <label>Set up (ก่อนงาน)</label>
       <select id="setup_hours">
-        <option value="2">ก่อนงาน 2 ชม.</option>
+        <option value="2" selected>ก่อนงาน 2 ชม.</option>
         <option value="1">ก่อนงาน 1 ชม.</option>
         <option value="3">ก่อนงาน 3 ชม.</option>
       </select>
@@ -83,10 +85,33 @@
           <input id="room_floor" placeholder="เช่น Ballroom ชั้น 2" />
         </div>
         <div>
-          <label>จองแพคเกจ (size / ราคา) *</label>
-          <input id="package" placeholder="เช่น M / 12,900" />
+          <label>หมายเหตุ</label>
+          <input id="notes" placeholder="ถ้ามี..." />
         </div>
       </div>
+
+      <div class="row">
+        <div>
+          <label>Package *</label>
+          <select id="package_type">
+            <option value="PhotoBooth">PhotoBooth</option>
+            <option value="Automate">Automate</option>
+            <option value="Tel ฟ้า">Tel ฟ้า</option>
+            <option value="Tel ไม้">Tel ไม้</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Size *</label>
+          <select id="size">
+            <option value="2x6">2x6</option>
+            <option value="4x6">4x6</option>
+          </select>
+        </div>
+      </div>
+
+      <label>ราคา (บาท) *</label>
+      <input id="price" type="number" placeholder="เช่น 12900" />
 
       <div class="row3">
         <div>
@@ -98,8 +123,11 @@
           <input id="deposit_date" type="date" />
         </div>
         <div>
-          <label>หมายเหตุ</label>
-          <input id="notes" placeholder="ถ้ามี..." />
+          <label>สถานะการชำระ</label>
+          <select id="deposit_status">
+            <option value="ยังไม่โอน" selected>ยังไม่โอน</option>
+            <option value="โอนแล้ว">โอนแล้ว</option>
+          </select>
         </div>
       </div>
 
@@ -116,15 +144,15 @@
       <div class="msg err" id="msgErr"></div>
 
       <div class="hint">
-        * ระบบจะสร้างอีเวนต์ “Set up” ล่วงหน้า (ก่อนงานตามชั่วโมงที่เลือก)<br/>
-        * ถ้าแนบสลิป ระบบจะอัปโหลดเข้า Google Drive และเก็บลิงก์ไว้ใน Sheet
+        • ระบบสร้างอีเวนต์ 2 อัน: (1) Set up ก่อนงานตามที่เลือก (2) ช่วงงานจริง<br/>
+        • แนบสลิป = อัปโหลดเข้า Drive และเก็บลิงก์ไว้ใน Sheet
       </div>
     </div>
   </div>
 
 <script>
-  // ✅ เปลี่ยนเป็น URL Web App /exec ของหมิว
-  const GAS_URL = "PUT_YOUR_GAS_WEBAPP_EXEC_URL_HERE";
+  // ✅ ใส่ URL Web App /exec ของหมิว (Deploy แล้ว)
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbzrnTE0rFsVUEhCefTItywFcI_hjpLFPV2C6nGFDaEU_CPDxq5XywG6BBRdzwzt3Edk/exec";
 
   const $ = (id)=>document.getElementById(id);
   const okBox = $("msgOk"), errBox = $("msgErr");
@@ -145,9 +173,9 @@
     if (!$("line_name").value.trim()) return "กรุณากรอกชื่อไลน์ลูกค้า";
     if (!$("contact").value.trim()) return "กรุณากรอกผู้ประสานงาน/เบอร์ติดต่อ";
     if (!$("event_date").value.trim()) return "กรุณาเลือกวันที่จัดงาน";
-    if (!$("event_time").value.trim()) return "กรุณากรอกเวลา (ช่วงงาน)";
+    if (!$("event_time").value.trim()) return "กรุณากรอกเวลา (เช่น 10:00–14:00)";
     if (!$("location").value.trim()) return "กรุณากรอกสถานที่";
-    if (!$("package").value.trim()) return "กรุณากรอกแพคเกจ (size/ราคา)";
+    if (!$("price").value.trim()) return "กรุณากรอกราคา";
     return "";
   }
 
@@ -160,7 +188,7 @@
     $("fileInfo").textContent = `${f.name} (${Math.round(f.size/1024)} KB)`;
   });
 
-  // default dates
+  // default date
   $("event_date").value = todayISO();
 
   $("btnSubmit").addEventListener("click", async ()=>{
@@ -176,7 +204,6 @@
     btn.disabled=true;
     btn.textContent="กำลังบันทึก…";
 
-    // สร้าง payload เป็น base64 ถ้ามีไฟล์
     const file = $("slip").files && $("slip").files[0];
     let slipObj = null;
 
@@ -194,31 +221,37 @@
       customer_name: $("customer_name").value.trim(),
       line_name: $("line_name").value.trim(),
       contact: $("contact").value.trim(),
-      event_date: $("event_date").value.trim(),   // YYYY-MM-DD
-      event_time: $("event_time").value.trim(),   // "10:00–14:00"
+      event_date: $("event_date").value.trim(),      // YYYY-MM-DD
+      event_time: $("event_time").value.trim(),      // "10:00–14:00"
       setup_hours: Number($("setup_hours").value || 2),
       location: $("location").value.trim(),
       room_floor: $("room_floor").value.trim(),
-      package: $("package").value.trim(),
+      notes: $("notes").value.trim(),
+
+      package_type: $("package_type").value,
+      size: $("size").value,
+      price: Number($("price").value || 0),
+
       deposit_amount: Number($("deposit_amount").value || 2000),
       deposit_date: $("deposit_date").value.trim(),
-      notes: $("notes").value.trim(),
+      deposit_status: $("deposit_status").value,
+
       slip: slipObj
     };
 
-    const controller = new AbortController();
-    const timer = setTimeout(()=>controller.abort(), 25000);
-
     try{
-      // ✅ ใช้ JSONP แบบ GET เพื่อหลบปัญหา fetch/cors บน iOS บางเคส
+      // ✅ ใช้ JSONP ผ่าน <script> เพื่อเลี่ยง CORS บน GitHub Pages
       const cbName = "cb_" + Math.random().toString(16).slice(2);
-      const url = GAS_URL + "?action=create&payload=" + encodeURIComponent(JSON.stringify(payload)) + "&callback=" + cbName;
+      const url = GAS_URL
+        + "?action=create"
+        + "&payload=" + encodeURIComponent(JSON.stringify(payload))
+        + "&callback=" + cbName;
 
       const data = await new Promise((resolve, reject)=>{
         window[cbName] = (resp)=>{ resolve(resp); cleanup(); };
         const s=document.createElement("script");
         s.src=url;
-        s.onerror=()=>{ reject(new Error("JSONP load error")); cleanup(); };
+        s.onerror=()=>{ reject(new Error("โหลด API ไม่สำเร็จ (JSONP error)")); cleanup(); };
         document.body.appendChild(s);
 
         function cleanup(){
@@ -229,15 +262,17 @@
 
       if (!data || !data.ok) throw new Error((data && data.error) || "บันทึกไม่สำเร็จ");
 
-      showOk(`บันทึกสำเร็จ ✅\nBooking ID: ${data.booking_id}\nCalendar: สร้างแล้ว`);
+      showOk(
+        `บันทึกสำเร็จ ✅\nBooking ID: ${data.booking_id}\n` +
+        `Calendar: สร้างแล้ว (Main + Setup)\n` +
+        (data.slip_url ? `Slip: ${data.slip_url}` : "")
+      );
       btn.textContent="บันทึกแล้ว ✅";
 
     }catch(err){
       showErr("ส่งไม่สำเร็จ: " + (err.message || err));
       btn.disabled=false;
       btn.textContent="บันทึก + สร้าง Calendar";
-    }finally{
-      clearTimeout(timer);
     }
   });
 </script>
