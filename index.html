@@ -6,38 +6,24 @@
   <title>Fleurarose Admin Booking</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
-    :root{
-      --bg:#f6f7fb; --card:#fff; --line:#e5e7eb; --text:#111827; --muted:#6b7280;
-      --primary:#0f172a; --primary2:#111827; --ok:#065f46; --okbg:#ecfdf5; --okbd:#a7f3d0;
-      --err:#991b1b; --errbg:#fef2f2; --errbd:#fecaca;
-      --shadow:0 12px 30px rgba(0,0,0,.07);
-      --radius:18px;
-    }
+    :root{--bg:#f6f7fb;--card:#fff;--line:#e5e7eb;--text:#111827;--muted:#6b7280;--primary:#0f172a;--primary2:#111827}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans Thai",sans-serif;background:var(--bg);color:var(--text)}
     .wrap{max-width:780px;margin:16px auto;padding:14px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 30px rgba(0,0,0,.07);padding:18px}
     h1{margin:0 0 6px;font-size:22px}
     .sub{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.4}
     label{display:block;margin-top:12px;color:var(--muted);font-size:13px}
-    input,select,textarea{
-      width:100%;box-sizing:border-box;margin-top:6px;padding:12px 12px;border:1px solid var(--line);
-      border-radius:14px;font-size:15px;background:#fff;outline:none
-    }
-    input:focus,select:focus,textarea:focus{border-color:#c7d2fe;box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+    input,select,textarea{width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:14px;font-size:15px;background:#fff}
     textarea{min-height:90px;resize:vertical}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    .btn{
-      width:100%;margin-top:14px;padding:14px;border-radius:16px;border:0;font-weight:800;font-size:16px;cursor:pointer
-    }
+    .btn{width:100%;margin-top:14px;padding:14px;border-radius:16px;border:0;font-weight:800;font-size:16px;cursor:pointer}
     .primary{background:linear-gradient(180deg,var(--primary),var(--primary2));color:#fff}
     .ghost{background:#eef2ff;color:#111827}
     .btn:disabled{opacity:.6;cursor:not-allowed}
-    .hint{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.5}
     .msg{margin-top:12px;padding:10px 12px;border-radius:14px;font-size:14px;display:none;white-space:pre-line}
-    .ok{background:var(--okbg);color:var(--ok);border:1px solid var(--okbd)}
-    .err{background:var(--errbg);color:var(--err);border:1px solid var(--errbd)}
-    .chip{display:inline-block;background:#f1f5f9;border:1px solid var(--line);padding:6px 10px;border-radius:999px;font-size:12px;color:#0f172a;margin-top:8px}
+    .ok{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+    .err{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
     .mini{font-size:12px;color:var(--muted);margin-top:6px}
     .preview{margin-top:10px;display:none;gap:10px;align-items:center}
     .preview img{width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
@@ -53,11 +39,11 @@
       <div class="row">
         <div>
           <label>ชื่อลูกค้า *</label>
-          <input id="customer_name" placeholder="เช่น คุณเมย์" />
+          <input id="customer_name" />
         </div>
         <div>
           <label>ชื่อไลน์ลูกค้า *</label>
-          <input id="line_name" placeholder="เช่น mayyyyy / @xxx" />
+          <input id="line_name" />
         </div>
       </div>
 
@@ -72,7 +58,7 @@
             <option value="10:00-14:00">10:00–14:00</option>
             <option value="18:00-22:00">18:00–22:00</option>
           </select>
-          <div class="mini">* Calendar จะสร้างเฉพาะเวลานี้เท่านั้น</div>
+          <div class="mini">Calendar จะสร้างเฉพาะเวลานี้</div>
         </div>
       </div>
 
@@ -102,21 +88,21 @@
       <div class="row">
         <div>
           <label>สถานที่ *</label>
-          <input id="location" placeholder="เช่น โรงแรม/บ้าน/อีเวนต์" />
+          <input id="location" />
         </div>
         <div>
           <label>ชื่อห้องที่จัดงาน/ชั้น</label>
-          <input id="room_floor" placeholder="เช่น Ballroom ชั้น 2" />
+          <input id="room_floor" />
         </div>
       </div>
 
       <label>ผู้ประสานงาน/เบอร์ติดต่อ *</label>
-      <input id="contact" placeholder="เช่น คุณเอก 08x-xxx-xxxx" />
+      <input id="contact" />
 
       <div class="row">
         <div>
           <label>ราคา (บาท) *</label>
-          <input id="price" type="number" min="0" step="1" placeholder="เช่น 12900" />
+          <input id="price" type="number" min="0" step="1" />
         </div>
         <div>
           <label>มัดจำ (บาท)</label>
@@ -142,31 +128,28 @@
       <input id="slip_file" type="file" accept="image/*" />
       <div class="preview" id="preview">
         <img id="previewImg" alt="preview"/>
-        <div>
-          <div class="chip" id="fileInfo">-</div>
-          <div class="mini">ถ้ารูปใหญ่เกิน แนะนำแคปหน้าจอใหม่ให้เล็กลง</div>
-        </div>
+        <div class="mini" id="fileInfo">-</div>
       </div>
 
       <label>หมายเหตุ</label>
-      <textarea id="notes" placeholder="เช่น ขอไฟนีออนสีชมพู / ส่งไฟล์โลโก้ล่วงหน้า"></textarea>
+      <textarea id="notes"></textarea>
 
       <button class="btn primary" id="btnSubmit">บันทึก + สร้าง Calendar</button>
       <button class="btn ghost" id="btnAdmin">💬 ติดต่อแอดมิน (เปิด OA)</button>
 
       <div class="msg ok" id="msgOk"></div>
       <div class="msg err" id="msgErr"></div>
-
-      <div class="hint">
-        - ระบบจะบันทึกลง Sheet และสร้าง Calendar “เฉพาะเวลางานจริง”<br/>
-        - ถ้าแนบรูปแล้วส่งไม่ผ่าน ให้ลดขนาดรูป (แคปหน้าจอใหม่)
-      </div>
     </div>
   </div>
 
+  <!-- ✅ hidden iframe + form = ไม่ติด CORS/ไม่ Load failed -->
+  <iframe name="hidden_iframe" style="display:none"></iframe>
+  <form id="postForm" method="POST" target="hidden_iframe" style="display:none">
+    <input type="hidden" name="payload" id="payloadField" />
+  </form>
+
 <script>
   const LIFF_ID = "2008882886-ubJheqfN";
-  // ✅ ใช้ /exec อันนี้ของหมิว (ตามที่ส่งมา)
   const GAS_URL = "https://script.google.com/macros/s/AKfycbxWvdPqVL7NPkrj3rI9Xv_ocaYfmXqcjWhOHYh3XI7cSuF4-6PXaGcntVK8yt6iml0W/exec";
   const OA_BASIC_ID = "@262clszf";
 
@@ -181,17 +164,27 @@
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   }
-
   function genBookingId(){
-    const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-    let s = "FR-";
-    for (let i=0;i<8;i++) s += chars[Math.floor(Math.random()*chars.length)];
+    const chars="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let s="FR-";
+    for(let i=0;i<8;i++) s += chars[Math.floor(Math.random()*chars.length)];
     return s;
+  }
+  async function readFileAsBase64(file){
+    return new Promise((resolve,reject)=>{
+      const r=new FileReader();
+      r.onload=()=>{
+        const dataUrl=String(r.result||"");
+        const i=dataUrl.indexOf("base64,");
+        resolve(i>=0?dataUrl.slice(i+7):"");
+      };
+      r.onerror=reject;
+      r.readAsDataURL(file);
+    });
   }
 
   async function init(){
     $("event_date").value = $("event_date").value || todayISO();
-
     try{
       await liff.init({ liffId: LIFF_ID });
       if (!liff.isLoggedIn()) { liff.login(); return; }
@@ -202,12 +195,34 @@
     }
   }
 
+  $("slip_file").addEventListener("change", ()=>{
+    clearMsg();
+    const f = $("slip_file").files && $("slip_file").files[0];
+    if (!f){ $("preview").style.display="none"; return; }
+    $("preview").style.display="flex";
+    $("fileInfo").textContent = `${f.name} (${Math.round(f.size/1024)} KB)`;
+    $("previewImg").src = URL.createObjectURL(f);
+    if (f.size > 800*1024) showErr("รูปสลิปเกิน 800KB แนะนำแคปหน้าจอใหม่ให้เล็กลง");
+  });
+
+  $("btnAdmin").addEventListener("click", ()=>{
+    clearMsg();
+    const url = "https://line.me/R/ti/p/" + OA_BASIC_ID;
+    try{
+      if (window.liff && liff.isInClient()) liff.openWindow({ url, external:true });
+      else window.open(url, "_blank");
+      showOk("เปิด OA แล้ว ✅");
+    }catch(e){
+      window.open(url, "_blank");
+      showOk("เปิด OA แล้ว ✅");
+    }
+  });
+
   function validate(){
     const req = [
       ["customer_name","กรุณากรอกชื่อลูกค้า"],
       ["line_name","กรุณากรอกชื่อไลน์ลูกค้า"],
       ["event_date","กรุณาเลือกวันที่"],
-      ["event_time","กรุณาเลือกเวลา"],
       ["location","กรุณากรอกสถานที่"],
       ["contact","กรุณากรอกผู้ประสานงาน/เบอร์"],
       ["price","กรุณากรอกราคา"],
@@ -218,45 +233,6 @@
     if (Number($("price").value) <= 0) return "ราคาต้องมากกว่า 0";
     return "";
   }
-
-  function readFileAsBase64(file){
-    return new Promise((resolve,reject)=>{
-      const r = new FileReader();
-      r.onload = ()=> {
-        const dataUrl = String(r.result||"");
-        const i = dataUrl.indexOf("base64,");
-        resolve(i>=0 ? dataUrl.slice(i+7) : null);
-      };
-      r.onerror = reject;
-      r.readAsDataURL(file);
-    });
-  }
-
-  $("slip_file").addEventListener("change", ()=>{
-    clearMsg();
-    const f = $("slip_file").files && $("slip_file").files[0];
-    if (!f){ $("preview").style.display="none"; return; }
-    $("preview").style.display="flex";
-    $("fileInfo").textContent = `${f.name} (${Math.round(f.size/1024)} KB)`;
-    $("previewImg").src = URL.createObjectURL(f);
-    if (f.size > 800*1024) showErr("รูปสลิปใหญ่เกิน 800KB แนะนำแคปหน้าจอใหม่ให้เล็กลง");
-  });
-
-  $("btnAdmin").addEventListener("click", async ()=>{
-    clearMsg();
-    try{
-      // เปิด OA แบบชัวร์ (ไม่พึ่ง scope sendMessages)
-      if (window.liff && liff.isInClient()){
-        liff.openWindow({ url: "https://line.me/R/ti/p/" + OA_BASIC_ID, external: true });
-      } else {
-        window.open("https://line.me/R/ti/p/" + OA_BASIC_ID, "_blank");
-      }
-      showOk("เปิด OA แล้ว ✅");
-    }catch(e){
-      window.open("https://line.me/R/ti/p/" + OA_BASIC_ID, "_blank");
-      showOk("เปิด OA แล้ว ✅");
-    }
-  });
 
   $("btnSubmit").addEventListener("click", async ()=>{
     clearMsg();
@@ -269,7 +245,6 @@
 
     const bookingId = genBookingId();
 
-    // slip
     let slip = null;
     const f = $("slip_file").files && $("slip_file").files[0];
     if (f){
@@ -280,10 +255,10 @@
         return;
       }
       const b64 = await readFileAsBase64(f);
-      slip = { name: f.name, type: f.type, data: b64 };
+      slip = { name:f.name, type:f.type, data:b64 };
     }
 
-    const payload = {
+    const payloadObj = {
       booking_id: bookingId,
       customer_name: $("customer_name").value.trim(),
       line_name: $("line_name").value.trim(),
@@ -303,28 +278,20 @@
       slip: slip
     };
 
-    try{
-      // ✅ สำคัญ: ใช้ fetch no-cors + keepalive (แก้ iOS/LIFF load failed)
-      await fetch(GAS_URL + "?action=create", {
-        method: "POST",
-        mode: "no-cors",
-        keepalive: true,
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload),
-      });
+    // ✅ ส่งด้วย FORM POST (ไม่ใช้ fetch) = ไม่ Load failed
+    const form = $("postForm");
+    form.action = GAS_URL; // /exec
+    $("payloadField").value = JSON.stringify(payloadObj);
 
-      // no-cors อ่านผลไม่ได้ → ถือว่าส่งออกแล้ว ให้หมิวเช็คใน Sheet/Calendar
-      showOk(
-        `ส่งคำขอแล้ว ✅\nBooking ID: ${bookingId}\n`+
-        `ถ้าไม่เห็นใน Sheet ภายใน 10 วินาที ให้ลองกดส่งใหม่`
-      );
-      btn.textContent = "ส่งแล้ว ✅";
+    // trick: doPost จะอ่าน e.postData.contents -> เราเลยส่งเป็น raw JSON ผ่าน "payload" ไม่ได้
+    // ดังนั้นเราจะ POST เป็น "text/plain" ไม่ได้ใน form
+    // วิธีแก้: ยิง JSON raw ด้วย form ไม่ได้ -> เราจะให้ Code.gs รับแบบ payload field แล้ว parse
 
-    }catch(err){
-      showErr("ส่งไม่สำเร็จ: " + (err.message || err));
-      btn.disabled = false;
-      btn.textContent = "บันทึก + สร้าง Calendar";
-    }
+    // 👉 ส่งแบบ x-www-form-urlencoded แล้ว Code.gs จะ parse จาก postData.contents เป็น 'payload=...'
+    form.submit();
+
+    showOk(`ส่งแล้ว ✅\nBooking ID: ${bookingId}\nถ้าไม่เห็นใน Sheet ภายใน 10 วินาที ให้ลองกดส่งใหม่`);
+    btn.textContent = "ส่งแล้ว ✅";
   });
 
   init();
